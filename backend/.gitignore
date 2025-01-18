@@ -2,3 +2,5 @@ __pycache__/
 uploads/
 .venv/
 venv/
+.env
+.DS_Store
