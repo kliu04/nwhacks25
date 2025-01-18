@@ -1,32 +1,45 @@
+import os
+import base64
+from openai import OpenAI
 from flask import Flask, request, jsonify
-import os 
 
 app = Flask(__name__)
-@app.route("/")
-def hello_world():
-    return "<p>Hello, World!</p>"
+
+# Configure the upload folder
+UPLOAD_FOLDER = 'uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Create the folder if it doesn't exist
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 
 @app.route('/upload', methods=['POST'])
-def upload_image():
-    """Handle image uploads."""
-    # Check if the request contains a file
-    if 'image' not in request.files:
-        return jsonify({'error': 'No file part in the request'}), 400
+def upload_base64_image():
+    """Handle image uploads via Base64 encoding."""
+    # Get the data from the request
+    data = request.form.get('image')
 
-    file = request.files['image']
+    if not data or 'image' not in data:
+        return jsonify({'error': 'No image data found'}), 400
+    
+    # base64 encoded string is data
 
-    # Check if the user uploaded a file
-    if file.filename == '':
-        return jsonify({'error': 'No file selected for upload'}), 400
+    try:
+        # Extract Base64 string and decode it
+        data = data.split("base64,")[1]
+        image_data = base64.b64decode(data)
+
+        # Generate a unique filename
+        filename = "test"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], f"{filename}.png")
+
+        # Save the image to the server
+        with open(filepath, 'wb') as file:
+            file.write(image_data)
+
+        return jsonify({'message': 'Image uploaded successfully', 'filepath': filepath}), 200
+
+    except Exception as e:
+        return jsonify({'error': f'Failed to process image: {str(e)}'}), 500
 
 
-    # Secure the filename and save the file
-    filename = file.filename
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(filepath)
-
-    return jsonify({
-        'message': 'Image uploaded successfully',
-        'filename': filename,
-        'filepath': filepath
-    }), 200
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)
