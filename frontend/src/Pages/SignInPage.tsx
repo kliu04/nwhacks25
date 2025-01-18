@@ -1,6 +1,34 @@
 import React from "react";
 import { GoogleOAuthProvider, GoogleLogin, googleLogout, CredentialResponse } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
+import  jwtDecode  from "jwt-decode";
+
+const styles = {
+    container: {
+        textAlign: "center" as "center",
+        marginTop: "10%",
+        padding: "20px",
+        backgroundColor: "#f9f9f9",
+        borderRadius: "8px",
+        maxWidth: "400px",
+        margin: "auto",
+        boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+    },
+    logoutButton: {
+        marginTop: "20px",
+        padding: "10px 20px",
+        fontSize: "16px",
+        borderRadius: "5px",
+        cursor: "pointer",
+        border: "1px solid #d3d3d3",
+        backgroundColor: "#ff4b4b",
+        color: "white",
+    },
+};
+
+interface DecodedToken {
+    name: string;
+    email: string;
+}
 
 interface DecodedToken {
     name: string;
@@ -8,18 +36,14 @@ interface DecodedToken {
     sub: string;
 }
 
-const SignIn: React.FC = () => {
+const SignInPage: React.FC = () => {
     const clientId = "531282944371-bfmopt7kqn3i3n5lboqun1ktmc10kj8b.apps.googleusercontent.com";
 
-    const handleSuccess = (response: CredentialResponse) => {
-        if (response.credential) {
-            const decodedToken: DecodedToken = jwtDecode<DecodedToken>(response.credential);
-            console.log("User Info:", decodedToken);
-            alert(`Welcome, ${decodedToken.name}`);
-        } else {
-            console.error("Credential is undefined.");
-            alert("Google Sign-In failed. Please try again.");
-        }
+    // Handle successful login
+    const handleSuccess = (response: any) => {
+        const decodedToken: any = jwtDecode(response.credential);
+        console.log("User Info:", decodedToken);
+        alert(`Welcome, ${decodedToken.name}`);
     };
 
     const handleError = () => {
@@ -29,14 +53,11 @@ const SignIn: React.FC = () => {
 
     return (
         <GoogleOAuthProvider clientId={clientId}>
-            <div className="sign-in">
-                <h1 className="sign-in__title">Sign In</h1>
-                <GoogleLogin
-                    onSuccess={handleSuccess}
-                    onError={handleError}
-                />
+            <div style={styles.container}>
+                <h1>Google Sign-In Example</h1>
+                <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
                 <button
-                    className="sign-in__logout-button"
+                    style={styles.logoutButton}
                     onClick={() => {
                         googleLogout();
                         alert("You have logged out.");
