@@ -28,7 +28,7 @@ const GetStarted: React.FC = () => {
     return (
         <div className="get-started">
             <h1 className="get-started__title">Get Started</h1>
-            <p className="get-started__subtitle">Select common pantry items you already have:</p>
+            <p className="get-started__subtitle">Select any common pantry items you already have:</p>
             <ul className="get-started__list">
                 {commonPantryItems.map((item) => (
                     <li key={item} className="get-started__list-item">
@@ -45,8 +45,8 @@ const GetStarted: React.FC = () => {
                 ))}
             </ul>
             <div className="get-started__actions">
-                <Link to="/getstarted" className="get-started__skip-button">
-                    Skip
+                <Link to="/upload-receipt" className="get-started__skip-button">
+                    Continue
                 </Link>
             </div>
         </div>

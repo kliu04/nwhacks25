@@ -1,6 +1,7 @@
 import React from "react";
 import { GoogleOAuthProvider, GoogleLogin, googleLogout, CredentialResponse } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
+import {Link} from "react-router-dom";
 
 interface DecodedToken {
     name: string;
@@ -44,6 +45,9 @@ const SignIn: React.FC = () => {
                 >
                     Logout
                 </button>
+                <Link to="/getstarted">
+                    Continue
+                </Link>
             </div>
         </GoogleOAuthProvider>
     );

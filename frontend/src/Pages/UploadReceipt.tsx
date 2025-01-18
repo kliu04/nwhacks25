@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import {Link} from "react-router-dom";
 
 const UploadReceipt: React.FC = () => {
     const [base64String, setBase64String] = useState<string | null>(null);
@@ -46,6 +47,9 @@ const UploadReceipt: React.FC = () => {
                     <img src={base64String} alt="Uploaded Receipt" className="upload-receipt__image" />
                 </div>
             )}
+            <Link to="/confirmation">
+                Next
+            </Link>
         </div>
     );
 };

@@ -7,6 +7,9 @@ function Home() {
             <nav>
                 <Link to="/inventory">Inventory</Link>
             </nav>
+            <nav>
+                <Link to="/recipes">Recipes</Link>
+            </nav>
         </div>
     );
 }
