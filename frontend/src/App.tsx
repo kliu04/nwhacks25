@@ -4,6 +4,7 @@ import './App.css'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './Pages/Home.tsx';
 import About from './Pages/Welcome.tsx';
+import Inventory from './Pages/Inventory.tsx';
 import React from "react";
 
 const App: React.FC = () => {
@@ -11,7 +12,8 @@ const App: React.FC = () => {
         <Router>
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
+                <Route path="/welcome" element={<About />} />
+                <Route path="/inventory" element={<Inventory />} />
             </Routes>
         </Router>
     );
