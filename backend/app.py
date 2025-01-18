@@ -5,8 +5,8 @@ from flask import Flask, request, jsonify
 from datetime import datetime
 
 
+import sqlite3
 
-import mysql.connector
 
 
 app = Flask(__name__)
@@ -16,6 +16,8 @@ UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Create the folder if it doesn't exist
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+# stub
+current_user_id=1
 
 @app.route("/upload", methods=["POST"])
 def upload_base64_image():
@@ -127,16 +129,11 @@ if __name__ == "__main__":
 
 
 def insert_data(receipt, current_user):
-    # Establish connection
-    connection = mysql.connector.connect(
-        host='127.0.0.1',  # Use localhost or your database IP
-        database='database'
-        # user='your_username',  # Add your MySQL username
-        # password='your_password'  # Add your MySQL password
-    )
+    # Establish connection to SQLite database
+    connection = sqlite3.connect('database.db')  # Make sure the correct path is provided to your SQLite database file
     cursor = connection.cursor()
 
-    user_id = current_user.id
+    user_id = current_user_id
 
     receipt = receipt['items']
 
@@ -154,12 +151,11 @@ def insert_data(receipt, current_user):
             weight = float(item['amount'].replace("kg", "").strip())
         else:
             quantity = int(float(item['amount']))  # Ensure it converts properly
-            
 
         # Insert query
         insert_query = """
         INSERT INTO items (user_id, name, expiry_date, quantity, weight)
-        VALUES (%s, %s, %s, %s, %s)
+        VALUES (?, ?, ?, ?, ?)
         """
         data = (user_id, item_name, expiry_date, quantity, weight)
 
@@ -173,5 +169,35 @@ def insert_data(receipt, current_user):
     cursor.close()
     connection.close()
 
+
+
+
+def get_all_items():
+    # SQLite connection (provide the path to your SQLite database file)
+    connection = sqlite3.connect('database.db')
+    cursor = connection.cursor()
+
+    # Assuming current_user.id is available
+    userid = current_user_id
+
+    # Corrected SQL Query
+    select_query = """
+        SELECT name, expiry_date, quantity, weight 
+        FROM items 
+        WHERE user_id = ?
+    """
+    data = (userid,)
+
+    cursor.execute(select_query, data)
+
+    # Fetch all the results
+    items = cursor.fetchall()
+
+    # Close connection
+    cursor.close()
+    connection.close()
+
+    print(items)
+    return items  # Return the fetched items
 
 
