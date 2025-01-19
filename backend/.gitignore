@@ -1,4 +1,7 @@
 __pycache__/
+venv/
+uploads/
+sqlite-autoconf-3480000/
 uploads/
 .venv/
 venv/
