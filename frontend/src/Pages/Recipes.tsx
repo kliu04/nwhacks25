@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import "./Recipes.css"; // Import the updated CSS
 
 interface Recipe {
@@ -7,15 +7,17 @@ interface Recipe {
     ingredients: string[];
     steps: string[];
     requiresExtra: boolean;
+    // New macro fields (strings):
+    calories: string;
+    protein: string;
+    carbs: string;
+    fats: string;
 }
 
 const UserRecipesPage: React.FC = () => {
     const [recipes, setRecipes] = useState<Recipe[]>([]);
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
-
-    // We'll use this state to display any success or error messages
-    // when "Make" is clicked for a specific recipe
     const [makeMessage, setMakeMessage] = useState<string | null>(null);
 
     useEffect(() => {
@@ -28,9 +30,10 @@ const UserRecipesPage: React.FC = () => {
             }
 
             try {
-                const response = await axios.get("https://nwhacks25.onrender.com/generate_recipes", {
-                    params: { user_ID: userID },
-                });
+                const response = await axios.get(
+                    "https://nwhacks25.onrender.com/generate_recipes",
+                    { params: { user_ID: userID } }
+                );
 
                 let data: any;
                 // If backend returns stringified JSON, parse it
@@ -69,11 +72,10 @@ const UserRecipesPage: React.FC = () => {
     };
 
     /**
-     * Sends a POST request to a dummy endpoint, passing user_ID and ingredients as query params.
-     * Replace "https://dummyapi.com/make" with your actual endpoint.
+     * Sends a POST request (with query params) to subtract ingredients from inventory, as an example.
+     * The server must handle 'ingredients' as JSON if needed.
      */
     const handleMake = async (recipe: Recipe) => {
-        // Clear any previous make-message
         setMakeMessage(null);
 
         const userID = localStorage.getItem("userId");
@@ -84,31 +86,22 @@ const UserRecipesPage: React.FC = () => {
         }
 
         try {
-            // We send a POST request with no body, but params in the config
             const response = await axios.post(
                 "https://nwhacks25.onrender.com/subtract",
-                null, // No request body
+                null,
                 {
                     params: {
                         user_ID: userID,
-                        // We can pass the entire array directly. The server must handle array query params.
-                        // If needed, consider joining them into a string, e.g. ingredients: recipe.ingredients.join(",")
+                        // JSON-stringify the array of ingredients if server needs it in that format:
                         ingredients: JSON.stringify(recipe.ingredients),
-                    }
+                    },
                 }
             );
-            console.log(recipe.ingredients);
-            console.log("User ID" + userID);
             console.log("Make Recipe Response:", response.data);
             setMakeMessage(`Successfully made "${recipe.name}"!`);
         } catch (error) {
             console.error("Error making recipe:", error);
-
-            // Decide how best to show the user this error; for now, a simple message:
             setMakeMessage(`Failed to make "${recipe.name}". Please try again later.`);
-        } finally {
-            console.log(recipe.ingredients);
-            console.log("User ID" + userID);
         }
     };
 
@@ -124,7 +117,7 @@ const UserRecipesPage: React.FC = () => {
         <div className="user-recipes">
             <h1 className="user-recipes__title">Your Recipes</h1>
 
-            {/* Display a success/error message after "Make" is clicked */}
+            {/* Display any success or error message from "Make" action */}
             {makeMessage && <p className="make-message">{makeMessage}</p>}
 
             <ul className="user-recipes__list">
@@ -154,7 +147,15 @@ const UserRecipesPage: React.FC = () => {
                                         ))}
                                     </ol>
 
-                                    {/* "Make" button to post user_ID and the recipe's ingredients as query params */}
+                                    {/* Display macros */}
+                                    <h3>Macros:</h3>
+                                    <ul>
+                                        <li>Calories: {recipe.calories}</li>
+                                        <li>Protein: {recipe.protein}</li>
+                                        <li>Carbs: {recipe.carbs}</li>
+                                        <li>Fats: {recipe.fats}</li>
+                                    </ul>
+
                                     <button
                                         className="make-recipe-button"
                                         onClick={() => handleMake(recipe)}
