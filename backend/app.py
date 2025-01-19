@@ -165,7 +165,7 @@ def insert_data(receipt, current_user):
         item_name = item["name"]  # Assuming item name comes from the receipt
         # ToDo: done
         expiry_date_str = item[
-            "expiry_date"
+            "expiry-date"
         ]  # Use actual expiry_date from the item if available
         expiry_date = datetime.strptime(expiry_date_str, "%Y%m%d").date()
         quantity = None
