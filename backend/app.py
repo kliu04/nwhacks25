@@ -57,7 +57,7 @@ def upload_receipt():
         cursor.close()
         conn.close()
         return (
-            jsonify({"error": f"User {user_ID} already exists."}),
+            jsonify({"error": f"User {user_ID} does not exist."}),
             400,
         )
 
