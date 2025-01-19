@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Inventory.css"; // <--- Create and import your Inventory.css
+import expirationIcon from "./icons/expiration.png";
 
 interface InventoryItem {
   item: string;
@@ -8,6 +9,16 @@ interface InventoryItem {
   amount: string;         // Displayed amount (e.g., "5" or "0.77 kg")
   amountNumeric: number;  // Numerical value for sorting
 }
+
+const getExpiryClass = (expiry: string) => {
+  const expiryDate = new Date(expiry).getTime();
+  const now = Date.now();
+  const oneWeek = 7 * 24 * 60 * 60 * 1000;
+
+  if (expiryDate - now <= 0) return "expired";
+  if (expiryDate - now <= oneWeek) return "expiry-soon";
+  return "expiry-week";
+};
 
 type InventoryTuple = [string, string, number | null, number | null];
 
@@ -223,7 +234,9 @@ const ViewInventory: React.FC = () => {
                         <tr key={index} className="view-inventory__row">
                             <td className="view-inventory__cell">{invItem.item}</td>
                             <td className="view-inventory__cell">{invItem.amount}</td>
-                            <td className="view-inventory__cell">{invItem.expiry}</td>
+                            <td className="view-inventory__cell${getExpiryClass(
+                                invItem.expiry )}">{invItem.expiry}</td>
+                                              
                         </tr>
                     ))}
                     </tbody>

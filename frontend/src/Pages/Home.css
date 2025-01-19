@@ -50,7 +50,7 @@
     min-height: 100vh; /* Make it fill the entire screen height */
     width: 100%; /* Ensure it spans the full width */
     font-family: Arial, sans-serif;
-  }
+}
 
 .home-images {
     display: flex;
