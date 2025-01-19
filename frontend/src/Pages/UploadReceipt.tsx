@@ -1,21 +1,26 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import axios from "axios";
-import FormData from "form-data";
+import React, { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import axios, { AxiosError } from "axios";
 import "./UploadReceipt.css"; // Import the updated CSS
 
 const UploadReceipt: React.FC = () => {
     const [base64String, setBase64String] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState<boolean>(false);
 
+    // Track if at least one successful upload occurred
+    const [hasAtLeastOneSuccess, setHasAtLeastOneSuccess] = useState<boolean>(false);
+
+    const navigate = useNavigate();
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+    // Handle file selection and convert to Base64
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-
         if (file) {
             const reader = new FileReader();
 
-            // Handle successful Base64 conversion
             reader.onload = () => {
                 const base64 = reader.result as string;
                 setBase64String(base64);
@@ -23,56 +28,100 @@ const UploadReceipt: React.FC = () => {
                 setSuccessMessage(null);
             };
 
-            // Handle file read errors
             reader.onerror = () => {
                 setErrorMessage("Failed to read file. Please try again.");
                 setBase64String(null);
                 setSuccessMessage(null);
             };
 
-            reader.readAsDataURL(file); // Convert file to Base64
+            reader.readAsDataURL(file);
         }
     };
 
-    const handleSubmit = async () => {
+    // Clear the form and reset state
+    const handleClear = () => {
+        setBase64String(null);
+        setErrorMessage(null);
+        setSuccessMessage(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    };
+
+    // Upload the current image to the backend
+    const handleUpload = async () => {
         if (!base64String) {
             setErrorMessage("No image selected to upload.");
             return;
         }
 
-        // Retrieve userID from local storage
         const userID = localStorage.getItem("userId");
         if (!userID) {
             setErrorMessage("User is not logged in. Please log in first.");
+            navigate("/");
             return;
         }
 
+        setIsUploading(true);
+
         try {
-            // Create FormData and append the Base64 string
             const data = new FormData();
             data.append("image", base64String);
 
-            // Configure the Axios request
             const config = {
                 method: "post",
                 maxBodyLength: Infinity,
-                url: `https://nwhacks25.onrender.com/receipt?user_ID=${userID}`,
-                headers: {
-                },
+                url: `https://nwhacks25.onrender.com/receipt`,
+                params: { user_ID: userID },
                 data: data,
             };
 
-            axios.request(config)
-                .then(res => {console.log(JSON.stringify(res.data));})
-                .catch(err => {console.log(err)});
+            const response = await axios.request(config);
+            console.log("Upload Response:", response.data);
+
             setSuccessMessage("Receipt uploaded successfully!");
             setErrorMessage(null);
-        } catch (error) {
-            // Handle error response
-            console.error("Error uploading receipt:", error);
 
-            setErrorMessage("Failed to upload receipt. Please try again.");
+            // At least one successful upload
+            setHasAtLeastOneSuccess(true);
+
+        } catch (error) {
+            // Show same user-facing message
+            setErrorMessage("You have already uploaded this receipt.");
             setSuccessMessage(null);
+
+            if (axios.isAxiosError(error)) {
+                const axiosError = error as AxiosError;
+                if (axiosError.response?.status === 400) {
+                    // 400 => Just clear, don't navigate
+                    handleClear();
+                } else {
+                    // Other errors => navigate based on prior success
+                    if (hasAtLeastOneSuccess) {
+                        navigate("/confirmation");
+                    } else {
+                        navigate("/");
+                    }
+                }
+            } else {
+                // Non-Axios error => same logic as "other errors"
+                if (hasAtLeastOneSuccess) {
+                    navigate("/confirmation");
+                } else {
+                    navigate("/");
+                }
+            }
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    // "Next" always navigates, depending on whether an image was uploaded
+    const handleNext = () => {
+        if (base64String) {
+            navigate("/confirmation");
+        } else {
+            navigate("/");
         }
     };
 
@@ -85,6 +134,9 @@ const UploadReceipt: React.FC = () => {
                 accept="image/*"
                 onChange={handleFileUpload}
                 className="upload-receipt__file-input"
+                id="file-input"
+                disabled={isUploading}
+                ref={fileInputRef}
             />
 
             {errorMessage && <p className="upload-receipt__error">{errorMessage}</p>}
@@ -97,13 +149,30 @@ const UploadReceipt: React.FC = () => {
                 </div>
             )}
 
-            <button onClick={handleSubmit} className="upload-receipt__submit-button">
-                Upload
-            </button>
+            <div className="upload-receipt__buttons">
+                <button
+                    onClick={handleClear}
+                    className="upload-receipt__clear-button"
+                    disabled={isUploading || !base64String}
+                >
+                    Clear
+                </button>
 
-            <Link to="/confirmation" className="upload-receipt__next-link">
-                Next
-            </Link>
+                <button
+                    onClick={handleUpload}
+                    className="upload-receipt__upload-button"
+                    disabled={isUploading || !base64String}
+                >
+                    {isUploading ? "Uploading..." : "Upload"}
+                </button>
+
+                <button
+                    onClick={handleNext}
+                    className="upload-receipt__next-button"
+                >
+                    Next
+                </button>
+            </div>
         </div>
     );
 };
