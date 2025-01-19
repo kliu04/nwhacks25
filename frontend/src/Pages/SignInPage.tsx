@@ -99,9 +99,9 @@ const SignIn: React.FC = () => {
       <button className="sign-in__button" onClick={handleLogout}>
         Logout
       </button>
-      <Link to="/" className="sign-in__button">
+      <button className="sign-in__button">
         Continue
-      </Link>
+      </button>
     </div>
   </div>
 </GoogleOAuthProvider>
