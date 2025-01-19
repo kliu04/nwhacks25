@@ -14,7 +14,7 @@ function Home() {
                     <h1>Pantry Pal</h1>
                 </div>
                 <div className="header__sign-in">
-                <Link to="/inventory" className="nav-link">
+                <Link to="/singin" className="nav-link">
                         Sign In
                     </Link>
                 </div>
