@@ -145,10 +145,6 @@ const ViewInventory: React.FC = () => {
                             amount = `${weight} kg`;
                             amountNumeric = Number(weight);
                         }
-                        console.log(calories);
-                        console.log(carbs);
-                        console.log(fats);
-                        console.log(protein);
 
                         return {
                             item: String(item),
