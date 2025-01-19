@@ -139,5 +139,78 @@ def insert_data(receipt, current_user):
     connection.close()
 
 
+def generate_recipes(current_user):
+    data = [
+        ("Zucchini Green", "2023-11-08", 5, None),
+        ("Banana Cavendish", "2023-11-03", 7, None),
+        ("Potatoes Brushed", "2023-11-11", None, 1.328),
+        ("Broccoli", "2023-11-06", 3, None),
+    ]
+    # need to sort the array in order of increasing expiry date
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "developer", "content": "You are a helpful assistant."},
+            {
+                "role": "user",
+                "content": f"""
+                    Generate recipes based on these ingredients: {data}, 
+                    prioritizing using those with the soonest expiry time, and with as few
+                    ingredients that are not in the list as possible.""",
+            },
+        ],
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "recipes",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "recipes": {
+                            "type": "array",
+                            "description": "List of recipes.",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "The name of the dish.",
+                                    },
+                                    "ingredients": {
+                                        "type": "array",
+                                        "items": {"type": "string"},
+                                        "description": "The list of ingredients for the dish.",
+                                    },
+                                    "steps": {
+                                        "type": "array",
+                                        "items": {"type": "string"},
+                                        "description": "The list of steps for the dish.",
+                                    },
+                                    "requiresExtra": {
+                                        "type": "boolean",
+                                        "description": "If more ingredients than provided are needed for the recipe.",
+                                    },
+                                },
+                                "required": [
+                                    "name",
+                                    "ingredients",
+                                    "steps",
+                                    "requiresExtra",
+                                ],
+                                "additionalProperties": False,
+                            },
+                        }
+                    },
+                    "required": ["recipes"],
+                    "additionalProperties": False,
+                },
+                "strict": True,
+            },
+        },
+    )
+    print(response.choices[0].message.content)
+
+
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    generate_recipes(1)
+    # app.run(debug=True, port=5000)
