@@ -19,8 +19,7 @@ const ViewInventory: React.FC = () => {
     // Fetch data on component mount
     useEffect(() => {
         const fetchInventory = async () => {
-            // Retrieve user_ID from localStorage
-            const userID = localStorage.getItem("userId"); // Ensure this key matches how you store it
+            const userID = localStorage.getItem("userId");
 
             if (!userID) {
                 console.error("User ID is missing. Cannot fetch inventory.");
@@ -30,58 +29,27 @@ const ViewInventory: React.FC = () => {
             }
 
             try {
-                // Make GET request with user_ID as a query parameter
                 const response = await axios.get("https://nwhacks25.onrender.com/inventory", {
                     params: { user_ID: userID },
-                    // If your API requires headers (e.g., for authentication), include them here
-                    // headers: {
-                    //     'Authorization': `Bearer ${token}`,
-                    // },
                 });
 
-                console.log("API Response:", response.data);
-                console.log("Type of response.data:", typeof response.data);
+                let data = response.data;
 
-                let data: any;
-
-                // Parse response data if it's a string
-                if (typeof response.data === "string") {
-                    try {
-                        data = JSON.parse(response.data);
-                    } catch (parseError) {
-                        console.error("Error parsing JSON:", parseError);
-                        setError("Failed to parse inventory data.");
-                        setInventory([]);
-                        setLoading(false);
-                        return;
-                    }
-                } else {
-                    data = response.data;
+                if (typeof data === "string") {
+                    data = JSON.parse(data);
                 }
 
-                // Check if data is an array (array of tuples)
                 if (Array.isArray(data)) {
-                    const transformedInventory: InventoryItem[] = data.map((tuple: any[], index: number) => {
-                        // Ensure each tuple has at least 4 elements
-                        if (tuple.length < 4) {
-                            console.warn(`Tuple at index ${index} is incomplete:`, tuple);
-                            return {
-                                item: "Unknown Item",
-                                expiry: "Unknown",
-                                amount: "N/A",
-                                amountNumeric: 0,
-                            };
-                        }
-
+                    const transformedInventory: InventoryItem[] = data.map((tuple: any[]) => {
                         const [item, expiry, quantity, weight] = tuple as InventoryTuple;
 
                         let amount = "N/A";
                         let amountNumeric = 0;
 
-                        if (quantity !== null && quantity !== undefined) {
+                        if (quantity !== null) {
                             amount = quantity.toString();
                             amountNumeric = Number(quantity);
-                        } else if (weight !== null && weight !== undefined) {
+                        } else if (weight !== null) {
                             amount = `${weight} kg`;
                             amountNumeric = Number(weight);
                         }
@@ -96,52 +64,9 @@ const ViewInventory: React.FC = () => {
 
                     setInventory(transformedInventory);
                 }
-                // Handle case where data is wrapped inside an object (e.g., { inventory: [...] })
-                else if (data.inventory && Array.isArray(data.inventory)) {
-                    const transformedInventory: InventoryItem[] = data.inventory.map((tuple: any[], index: number) => {
-                        if (tuple.length < 4) {
-                            console.warn(`Tuple at index ${index} is incomplete:`, tuple);
-                            return {
-                                item: "Unknown Item",
-                                expiry: "Unknown",
-                                amount: "N/A",
-                                amountNumeric: 0,
-                            };
-                        }
-
-                        const [item, expiry, quantity, weight] = tuple as InventoryTuple;
-
-                        let amount = "N/A";
-                        let amountNumeric = 0;
-
-                        if (quantity !== null && quantity !== undefined) {
-                            amount = quantity.toString();
-                            amountNumeric = Number(quantity);
-                        } else if (weight !== null && weight !== undefined) {
-                            amount = `${weight} kg`;
-                            amountNumeric = Number(weight);
-                        }
-
-                        return {
-                            item: String(item),
-                            expiry: String(expiry),
-                            amount,
-                            amountNumeric,
-                        };
-                    });
-
-                    setInventory(transformedInventory);
-                }
-                else {
-                    console.error("Unexpected API response structure:", data);
-                    setError("Unexpected response structure from the server.");
-                    setInventory([]);
-                }
-
             } catch (error) {
                 console.error("Error fetching inventory:", error);
                 setError("Failed to fetch inventory. Please try again later.");
-                setInventory([]);
             } finally {
                 setLoading(false);
             }
@@ -150,7 +75,16 @@ const ViewInventory: React.FC = () => {
         fetchInventory();
     }, []);
 
-    // Sorting function updated to handle amount
+    // Highlight items close to expiry
+    const isCloseToExpiry = (expiry: string): boolean => {
+        const currentDate = new Date();
+        const expiryDate = new Date(expiry);
+        const diffInMs = expiryDate.getTime() - currentDate.getTime();
+        const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+        return diffInDays <= 7; // Highlight items expiring within 7 days
+    };
+
+    // Sorting function
     const handleSort = (criteria: "item" | "amount" | "expiry") => {
         const sortedInventory = [...inventory].sort((a, b) => {
             if (criteria === "amount") {
@@ -161,14 +95,12 @@ const ViewInventory: React.FC = () => {
                 const bDate = new Date(b.expiry).getTime();
                 return aDate - bDate;
             }
-            // Default to sorting by item name
             return a.item.localeCompare(b.item);
         });
         setSortBy(criteria);
         setInventory(sortedInventory);
     };
 
-    // Loading state
     if (loading) {
         return (
             <div className="loading">
@@ -181,14 +113,12 @@ const ViewInventory: React.FC = () => {
         <div className="view-inventory">
             <h1 className="view-inventory__title">Your Pantry</h1>
 
-            {/* Display error message if any */}
             {error && (
                 <div className="view-inventory__error">
                     <p>{error}</p>
                 </div>
             )}
 
-            {/* Sorting Controls */}
             <div className="view-inventory__controls">
                 <label htmlFor="sortBy" className="view-inventory__label">
                     Sort By:
@@ -207,7 +137,6 @@ const ViewInventory: React.FC = () => {
                 </select>
             </div>
 
-            {/* Inventory Table */}
             {inventory.length > 0 ? (
                 <table className="view-inventory__table">
                     <thead>
@@ -219,7 +148,14 @@ const ViewInventory: React.FC = () => {
                     </thead>
                     <tbody>
                     {inventory.map((invItem, index) => (
-                        <tr key={index} className="view-inventory__row">
+                        <tr
+                            key={index}
+                            className={`view-inventory__row ${
+                                isCloseToExpiry(invItem.expiry)
+                                    ? "view-inventory__row--close-to-expiry"
+                                    : ""
+                            }`}
+                        >
                             <td className="view-inventory__cell">{invItem.item}</td>
                             <td className="view-inventory__cell">{invItem.amount}</td>
                             <td className="view-inventory__cell">{invItem.expiry}</td>

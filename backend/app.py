@@ -27,9 +27,12 @@ def get_inventory():
     # POST
     try:
         user_ID = request.args.get("user_ID")
-        items = request.args.get("items")
+        parsed_data = json.loads(request.args.get("items"))
+
+        for item in parsed_data:
+            item["expiry-date"] = item.pop("expiry")
         clear_user_data(user_ID)
-        insert_data(items, user_ID)
+        insert_data(parsed_data, user_ID)
         return (jsonify({"message": "Items set successfully"}), 200)
     except Exception as e:
         return (jsonify({"error:" "Cannot set inventory"}), 400)
@@ -157,17 +160,22 @@ def insert_data(receipt, user_ID):
     user_id = user_ID
 
     for item in receipt:
+        print(type(item))
         # Data to insert
         item_name = item["name"]
         expiry_date_str = item[
             "expiry-date"
         ]  # Use actual expiry_date from the item if available
-        expiry_date = datetime.strptime(expiry_date_str, "%Y%m%d").date()
+        expiry_date = None
+        try:
+            expiry_date = datetime.strptime(expiry_date_str, "%Y%m%d").date()
+        except:
+            expiry_date = datetime.strptime(expiry_date_str, "%Y-%m-%d").date()
         quantity = None
         weight = None
 
         # Check if amount contains "kg"
-        if "kg" in item["amount"]:  # Assuming 'amount' is a string in the item
+        if "kg" in str(item["amount"]):  # Assuming 'amount' is a string in the item
             weight = float(item["amount"].replace("kg", "").strip())
         else:
             quantity = int(float(item["amount"]))  # Ensure it converts properly
