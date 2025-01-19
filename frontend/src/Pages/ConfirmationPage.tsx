@@ -23,11 +23,11 @@ const ConfirmationPage: React.FC = () => {
         try {
             console.log(JSON.stringify(items));
             await axios.post(
-                "http://127.0.0.1:5000/inventory",
+                "https://nwhacks25.vercel.app/inventory",
                 null, // Empty body
                 {
                     params: {
-                        user_ID: "1", // Send user_ID as a query parameter
+                        user_ID: userID, // Send user_ID as a query parameter
                         items: JSON.stringify(items)
                     },
                 }
@@ -43,7 +43,7 @@ const ConfirmationPage: React.FC = () => {
         const userID = localStorage.getItem("userId");
         try {
             const response = await axios.get("https://nwhacks25.onrender.com/inventory", {
-                params: { user_ID: "1" },
+                params: { user_ID: userID },
             });
 
             console.log(response);
