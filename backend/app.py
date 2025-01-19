@@ -8,7 +8,11 @@ import os
 
 app = Flask(__name__)
 CORS(app)
+CORS(app, resources={r"/*": {"origins": ["https://nwhacks25.vercel.app/"]}})
 client = OpenAI()
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "database.db")
 
 
 # stub
@@ -37,10 +41,28 @@ def get_inventory():
 
 @app.route("/receipt", methods=["POST"])
 def upload_receipt():
+    user_ID = request.args.get("user_ID")
     data = request.form.get("image")
 
     if not data or "image" not in data:
         return (jsonify({"error": "No image data found"}), 400)
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_ID,))
+    existing_user = cursor.fetchone()
+
+    if existing_user:
+        cursor.close()
+        conn.close()
+        return (
+            jsonify({"error": f"User {user_ID} already exists."}),
+            400,
+        )
+
+    cursor.close()
+    conn.close()
 
     try:
         response = client.chat.completions.create(
@@ -109,7 +131,7 @@ def upload_receipt():
         )
         print(response.choices[0].message.content)
         # hacky
-        insert_data((response.choices[0].message.content)["items"], 1)
+        insert_data((response.choices[0].message.content)["items"], user_ID)
         return (
             jsonify({"message": "Image uploaded successfully"}),
             200,
@@ -131,7 +153,7 @@ def clear_user_data(current_user):
 
 def insert_data(receipt, current_user):
     # Establish connection to SQLite database
-    connection = sqlite3.connect("database.db")
+    connection = sqlite3.connect(DB_PATH)
     cursor = connection.cursor()
 
     user_id = current_user
@@ -177,10 +199,7 @@ def get_all_items(current_user):
     ## path issue
     # SQLite connection (provide the path to your SQLite database file)
 
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    db_path = os.path.join(BASE_DIR, "database.db")
-
-    connection = sqlite3.connect(db_path)
+    connection = sqlite3.connect(DB_PATH)
     cursor = connection.cursor()
 
     # Assuming current_user.id is available
@@ -287,7 +306,7 @@ def generate_recipes():
 def register_user():
     user_ID = request.args.get("user_ID")
     # Connect to SQLite database (or create if it doesn't exist)
-    conn = sqlite3.connect("database.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     try:
         # Check if the user already exists
