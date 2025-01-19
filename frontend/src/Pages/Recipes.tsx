@@ -14,10 +14,13 @@ const UserRecipesPage: React.FC = () => {
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
+    // We'll use this state to display any success or error messages
+    // when "Make" is clicked for a specific recipe
+    const [makeMessage, setMakeMessage] = useState<string | null>(null);
+
     useEffect(() => {
         const fetchRecipes = async () => {
             const userID = localStorage.getItem("userId");
-
             if (!userID) {
                 console.error("User ID is missing. Cannot fetch recipes.");
                 setLoading(false);
@@ -25,33 +28,26 @@ const UserRecipesPage: React.FC = () => {
             }
 
             try {
-                const response = await axios.get(
-                    "https://nwhacks25.onrender.com/generate_recipes",
-                    {
-                        params: { user_ID: userID },
-                    }
-                );
+                const response = await axios.get("https://nwhacks25.onrender.com/generate_recipes", {
+                    params: { user_ID: userID },
+                });
 
-                console.log("Raw API Response:", response.data);
-                console.log("Type of response.data:", typeof response.data);
-
-                // Manually parse if it's a string, otherwise use directly
                 let data: any;
+                // If backend returns stringified JSON, parse it
                 if (typeof response.data === "string") {
                     try {
                         data = JSON.parse(response.data);
                     } catch (parseError) {
                         console.error("Error parsing JSON:", parseError);
                         setRecipes([]);
+                        setLoading(false);
                         return;
                     }
                 } else {
                     data = response.data;
                 }
 
-                // Ensure the parsed 'data' has a 'recipes' array
                 if (data && data.recipes && Array.isArray(data.recipes)) {
-                    console.log("Recipes Array:", data.recipes);
                     setRecipes(data.recipes);
                 } else {
                     console.error("Unexpected API response structure:", data);
@@ -68,12 +64,52 @@ const UserRecipesPage: React.FC = () => {
         fetchRecipes();
     }, []);
 
-    useEffect(() => {
-        console.log("Updated recipes data:", recipes);
-    }, [recipes]);
-
     const toggleExpand = (index: number) => {
         setExpandedIndex(expandedIndex === index ? null : index);
+    };
+
+    /**
+     * Sends a POST request to a dummy endpoint, passing user_ID and ingredients as query params.
+     * Replace "https://dummyapi.com/make" with your actual endpoint.
+     */
+    const handleMake = async (recipe: Recipe) => {
+        // Clear any previous make-message
+        setMakeMessage(null);
+
+        const userID = localStorage.getItem("userId");
+        if (!userID) {
+            console.error("Cannot make recipe: User ID missing from localStorage.");
+            setMakeMessage("Error: Please log in first.");
+            return;
+        }
+
+        try {
+            // We send a POST request with no body, but params in the config
+            const response = await axios.post(
+                "https://nwhacks25.onrender.com/subtract",
+                null, // No request body
+                {
+                    params: {
+                        user_ID: userID,
+                        // We can pass the entire array directly. The server must handle array query params.
+                        // If needed, consider joining them into a string, e.g. ingredients: recipe.ingredients.join(",")
+                        ingredients: JSON.stringify(recipe.ingredients),
+                    }
+                }
+            );
+            console.log(recipe.ingredients);
+            console.log("User ID" + userID);
+            console.log("Make Recipe Response:", response.data);
+            setMakeMessage(`Successfully made "${recipe.name}"!`);
+        } catch (error) {
+            console.error("Error making recipe:", error);
+
+            // Decide how best to show the user this error; for now, a simple message:
+            setMakeMessage(`Failed to make "${recipe.name}". Please try again later.`);
+        } finally {
+            console.log(recipe.ingredients);
+            console.log("User ID" + userID);
+        }
     };
 
     if (loading) {
@@ -87,17 +123,21 @@ const UserRecipesPage: React.FC = () => {
     return (
         <div className="user-recipes">
             <h1 className="user-recipes__title">Your Recipes</h1>
+
+            {/* Display a success/error message after "Make" is clicked */}
+            {makeMessage && <p className="make-message">{makeMessage}</p>}
+
             <ul className="user-recipes__list">
                 {recipes.length > 0 ? (
                     recipes.map((recipe, index) => (
                         <li key={index} className="user-recipes__list-item">
                             <div
-                                className="user-recipes__header"
+                                className="user-recipes__header clickable"
                                 onClick={() => toggleExpand(index)}
-                                style={{ cursor: "pointer" }}
                             >
                                 <span>{recipe.name}</span>
                             </div>
+
                             {expandedIndex === index && (
                                 <div className="user-recipes__details">
                                     <h3>Ingredients:</h3>
@@ -106,12 +146,21 @@ const UserRecipesPage: React.FC = () => {
                                             <li key={idx}>{ingredient}</li>
                                         ))}
                                     </ul>
+
                                     <h3>Steps:</h3>
                                     <ol>
                                         {recipe.steps.map((step, idx) => (
                                             <li key={idx}>{step}</li>
                                         ))}
                                     </ol>
+
+                                    {/* "Make" button to post user_ID and the recipe's ingredients as query params */}
+                                    <button
+                                        className="make-recipe-button"
+                                        onClick={() => handleMake(recipe)}
+                                    >
+                                        Make
+                                    </button>
                                 </div>
                             )}
                         </li>

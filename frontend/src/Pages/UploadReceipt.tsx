@@ -9,9 +9,6 @@ const UploadReceipt: React.FC = () => {
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState<boolean>(false);
 
-    // Track if at least one successful upload occurred
-    const [hasAtLeastOneSuccess, setHasAtLeastOneSuccess] = useState<boolean>(false);
-
     const navigate = useNavigate();
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -71,6 +68,7 @@ const UploadReceipt: React.FC = () => {
             const config = {
                 method: "post",
                 maxBodyLength: Infinity,
+                maxContentLength: Infinity,
                 url: `https://nwhacks25.onrender.com/receipt`,
                 params: { user_ID: userID },
                 data: data,
@@ -81,48 +79,32 @@ const UploadReceipt: React.FC = () => {
 
             setSuccessMessage("Receipt uploaded successfully!");
             setErrorMessage(null);
-
-            // At least one successful upload
-            setHasAtLeastOneSuccess(true);
-
         } catch (error) {
-            // Show same user-facing message
+            // Show unified user-facing message
             setErrorMessage("You have already uploaded this receipt.");
             setSuccessMessage(null);
 
             if (axios.isAxiosError(error)) {
                 const axiosError = error as AxiosError;
                 if (axiosError.response?.status === 400) {
-                    // 400 => Just clear, don't navigate
-                    handleClear();
+                    // 400 Error: Already uploaded receipt
+                    handleClear(); // Clear the form without navigating
                 } else {
-                    // Other errors => navigate based on prior success
-                    if (hasAtLeastOneSuccess) {
-                        navigate("/confirmation");
-                    } else {
-                        navigate("/");
-                    }
-                }
-            } else {
-                // Non-Axios error => same logic as "other errors"
-                if (hasAtLeastOneSuccess) {
-                    navigate("/confirmation");
-                } else {
+                    // Other errors: Show message and navigate home
                     navigate("/");
                 }
+            } else {
+                // Non-Axios errors: Show message and navigate home
+                navigate("/");
             }
         } finally {
             setIsUploading(false);
         }
     };
 
-    // "Next" always navigates, depending on whether an image was uploaded
+    // "Next" always navigates to home
     const handleNext = () => {
-        if (base64String) {
-            navigate("/confirmation");
-        } else {
-            navigate("/");
-        }
+        navigate("/");
     };
 
     return (
@@ -150,31 +132,34 @@ const UploadReceipt: React.FC = () => {
             )}
 
             <div className="upload-receipt__buttons">
+                {/* Clear (doesn't post; removes image) */}
                 <button
                     onClick={handleClear}
-                    className="upload-receipt__clear-button"
+                    className="upload-receipt__button"
                     disabled={isUploading || !base64String}
                 >
                     Clear
                 </button>
 
+                {/* Upload (posts to backend) */}
                 <button
                     onClick={handleUpload}
-                    className="upload-receipt__upload-button"
+                    className="upload-receipt__button"
                     disabled={isUploading || !base64String}
                 >
                     {isUploading ? "Uploading..." : "Upload"}
                 </button>
 
+                {/* Next (always navigates to home) */}
                 <button
                     onClick={handleNext}
-                    className="upload-receipt__next-button"
+                    className="upload-receipt__button"
                 >
                     Next
                 </button>
+                </div>
             </div>
-        </div>
     );
 };
-
+// test
 export default UploadReceipt;

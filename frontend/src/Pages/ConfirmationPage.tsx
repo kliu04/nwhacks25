@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import {  Link  } from "react-router-dom";
 import "./ConfirmationPage.css"; // Import the updated CSS
 
 interface Item {
@@ -85,17 +85,17 @@ const ConfirmationPage: React.FC = () => {
         }
     };
 
-    // Handle item updates
-    const handleUpdateItem = (id: number, updatedItem: Partial<Item>) => {
-        setItems((prev) =>
-            prev.map((item) => (item.id === id ? { ...item, ...updatedItem } : item))
-        );
-    };
+  // Handle item updates
+  const handleUpdateItem = (id: number, updatedItem: Partial<Item>) => {
+    setItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...updatedItem } : item))
+    );
+  };
 
-    // Handle item removal
-    const handleRemoveItem = (id: number) => {
-        setItems((prev) => prev.filter((item) => item.id !== id));
-    };
+  // Handle item removal
+  const handleRemoveItem = (id: number) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+  };
 
     return (
         <div className="confirmation-page">

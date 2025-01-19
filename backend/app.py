@@ -10,6 +10,9 @@ app = Flask(__name__)
 CORS(app)
 CORS(app, resources={r"/*": {"origins": ["https://nwhacks25.vercel.app/"]}})
 client = OpenAI()
+app.config["MAX_CONTENT_LENGTH"] = 1024 * 1024 * 1024  # 50 MB
+app.config["MAX_FORM_MEMORY_SIZE"] = 50 * 1024 * 1024
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
@@ -86,7 +89,7 @@ def upload_receipt():
                         Strip out all new lines and spaces. Ignore any extra information in the receipt such as prices.
                         The current date is: {datetime.today().strftime('%Y-%m-%d')}.
                         Please spell check and expand abbreviations, for example klggs cere is kellogs cereal. Receipts will shorten
-                        names so please expand them.
+                        names so please expand them. Ignore non-food items. Please also include the calories (integer), protein (integer), carbs (integer), fat (integer). Use your best guess.
                         """,
                         },
                         {"type": "image_url", "image_url": {"url": data}},
@@ -117,8 +120,32 @@ def upload_receipt():
                                             "type": "string",
                                             "description": "The expiry date of the item in YYYYMMDD format.",
                                         },
+                                        "calories": {
+                                            "type": "number",
+                                            "description": "the calories (kcal) in the food (total)",
+                                        },
+                                        "protein": {
+                                            "type": "number",
+                                            "description": "the protein in the food (grams)",
+                                        },
+                                        "carbs": {
+                                            "type": "number",
+                                            "description": "the carbs in the food (grams)",
+                                        },
+                                        "fat": {
+                                            "type": "number",
+                                            "description": "the fat in the food (grams)",
+                                        },
                                     },
-                                    "required": ["name", "amount", "expiry-date"],
+                                    "required": [
+                                        "name",
+                                        "amount",
+                                        "expiry-date",
+                                        "calories",
+                                        "protein",
+                                        "carbs",
+                                        "fat",
+                                    ],
                                     "additionalProperties": False,
                                 },
                             },
@@ -130,7 +157,6 @@ def upload_receipt():
                 },
             },
         )
-        print(response.choices[0].message.content)
         # hacky
         insert_data(json.loads(response.choices[0].message.content)["items"], user_ID)
         return (
@@ -148,6 +174,7 @@ def clear_user_data(user_ID):
     query = """DELETE FROM items WHERE user_ID = ?"""
     cursor.execute(query, (user_ID,))
 
+    connection.commit()
     cursor.close()
     connection.close()
 
@@ -160,7 +187,6 @@ def insert_data(receipt, user_ID):
     user_id = user_ID
 
     for item in receipt:
-        print(type(item))
         # Data to insert
         item_name = item["name"]
         expiry_date_str = item[
@@ -173,6 +199,10 @@ def insert_data(receipt, user_ID):
             expiry_date = datetime.strptime(expiry_date_str, "%Y-%m-%d").date()
         quantity = None
         weight = None
+        calories = item["calories"]
+        protein = item["protein"]
+        carbs = item["carbs"]
+        fat = item["fat"]
 
         # Check if amount contains "kg"
         if "kg" in str(item["amount"]):  # Assuming 'amount' is a string in the item
@@ -227,7 +257,6 @@ def get_all_items(user_ID):
 def generate_recipes():
     user_ID = request.args.get("user_ID")
     data = get_all_items(user_ID)
-    print(data)
     # [(name, amount)]
     # need to sort the array in order of increasing expiry date
     response = client.chat.completions.create(
@@ -293,7 +322,6 @@ def generate_recipes():
             },
         },
     )
-    print(response.choices[0].message.content)
     return jsonify(response.choices[0].message.content), 200
 
 
@@ -325,7 +353,6 @@ def register_user():
             conn.commit()
             cursor.close()
             conn.close()
-            print(f"User with id {user_ID} has been successfully registered.")
             return (
                 jsonify(
                     {"message": f"User {user_ID} has been successfully registered."}
@@ -341,6 +368,7 @@ def register_user():
         )
 
     # Close the connection
+
 
 # takes list of ingredients
 def generate_subtractions(recipe):
@@ -373,46 +401,40 @@ def generate_subtractions(recipe):
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "description": "The name of the ingredient."
+                                        "description": "The name of the ingredient.",
                                     },
                                     "amount": {
                                         "type": "number",
-                                        "description": "The amount of the ingredient."
-                                    }
+                                        "description": "The amount of the ingredient.",
+                                    },
                                 },
                                 "required": ["name", "amount"],
-                                "additionalProperties": False
-                            }
+                                "additionalProperties": False,
+                            },
                         }
                     },
                     "required": ["ingredient_tuples"],
-                    "additionalProperties": False
-                }
-            }
+                    "additionalProperties": False,
+                },
+            },
         },
     )
 
-    # print(response.choices[0].message.content)
-
-
     return response.choices[0].message.content
+
 
 # takes list of ingredients
 @app.route("/subtract", methods=["POST"])
-def subtract_quantities(recipe):
+def subtract_quantities():
     userid = request.args.get("user_ID")
-
-    # stub
-    # userid = 1
+    recipe = json.loads(request.args.get("ingredients"))
+    print(recipe)
 
     to_updates = json.loads(generate_subtractions(recipe))
-    #print(to_updates)
     to_updates = to_updates["ingredient_tuples"]
 
     connection = sqlite3.connect("database.db")
     cursor = connection.cursor()
-
-    
 
     # Fetch all item names for the user
     select_query = """
@@ -424,17 +446,19 @@ def subtract_quantities(recipe):
     cursor.execute(select_query, data)
     items = cursor.fetchall()
 
-    #print(items)
     for update in to_updates:
         quant = True
-        if update['name'] in [item[0] for item in items]:
-             # Fetch all item names for the user
+        if update["name"] in [item[0] for item in items]:
+            # Fetch all item names for the user
             select_quant_query = """
                 SELECT quantity
                 FROM items 
                 WHERE user_id = ? AND name = ?
             """
-            data = (userid,update['name'], )
+            data = (
+                userid,
+                update["name"],
+            )
             cursor.execute(select_quant_query, data)
             quant_result = cursor.fetchall()
             if quant_result[0][0] is None:
@@ -444,62 +468,59 @@ def subtract_quantities(recipe):
                     FROM items 
                     WHERE user_id = ? AND name = ?
                 """
-                data = (userid,update['name'], )
+                data = (
+                    userid,
+                    update["name"],
+                )
                 cursor.execute(select_weight_query, data)
                 weight_result = cursor.fetchall()
             if quant:
-                new_amount = quant_result[0][0] - update['amount']
-                update_query =  """
+                new_amount = quant_result[0][0] - update["amount"]
+                update_query = """
                     UPDATE items
                     SET quantity = ?
                     WHERE user_id = ? AND name = ?
                 """
 
             else:
-                new_amount = weight_result[0][0] - update['amount']
-                update_query =  """
+                new_amount = weight_result[0][0] - update["amount"]
+                update_query = """
                     UPDATE items
                     SET weight = ?
                     WHERE user_id = ? AND name = ?
                 """
-            
-            print(update['name'])
-            print(new_amount)
-            data = (new_amount, userid,update['name'], )
+
+            data = (
+                new_amount,
+                userid,
+                update["name"],
+            )
             cursor.execute(update_query, data)
 
-            # remove the amount if it's amount <= 0 
+            # remove the amount if it's amount <= 0
             if new_amount <= 0:
-                #new_amount = 0
+                # new_amount = 0
                 delete_query = """
                     DELETE FROM items
                     WHERE user_id = ? AND name = ?
                 """
-                data = (userid,update['name'], )
+                data = (
+                    userid,
+                    update["name"],
+                )
                 cursor.execute(delete_query, data)
 
             connection.commit()
-    
 
     # Close connection
     cursor.close()
     connection.close()
 
-
-recipe = [
-        "Zucchini Green (0.778 kg)",
-        "Broccoli (0.808 kg)",
-        "Banana Cavendish (2 units)",
-        "1 tbsp honey",
-        "1/2 cup ice cubes"
-    ]
+    return (
+        jsonify({"message": f"Deleted ingredients from recipe."}),
+        200,
+    )
 
 
-#test:
-subtract_quantities(recipe)
-
-
-# test
-# register_login_user('31415926')
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

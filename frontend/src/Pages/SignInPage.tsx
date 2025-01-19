@@ -1,19 +1,18 @@
 import React from "react";
 import { GoogleOAuthProvider, GoogleLogin, googleLogout, CredentialResponse } from "@react-oauth/google";
-import { jwtDecode }from "jwt-decode";
-import { Link, useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { Link } from "react-router-dom";
 import axios, { AxiosError } from "axios";
 import "./SignIn.css"; // Import the updated CSS
 
 interface DecodedToken {
     name: string;
     email: string;
-    sub: string; // Unique user identifier
+    sub: string;
 }
 
 const SignIn: React.FC = () => {
     const clientId = "531282944371-bfmopt7kqn3i3n5lboqun1ktmc10kj8b.apps.googleusercontent.com";
-    const navigate = useNavigate();
 
     const handleSuccess = async (response: CredentialResponse) => {
         if (response.credential) {
@@ -64,7 +63,6 @@ const SignIn: React.FC = () => {
                 }
 
                 // Redirect the user to the next page
-                navigate("/getstarted");
             } catch (decodeError) {
                 console.error("Error decoding token:", decodeError);
                 alert("Failed to decode authentication token. Please try again.");
@@ -82,23 +80,31 @@ const SignIn: React.FC = () => {
 
     const handleLogout = () => {
         googleLogout();
-        localStorage.removeItem("userId"); // Remove the user identifier from local storage
+        localStorage.removeItem("userId");
         alert("You have logged out.");
     };
 
     return (
-        <GoogleOAuthProvider clientId={clientId}>
-            <div className="sign-in">
-                <h1 className="sign-in__title">Sign In</h1>
-                <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
-                <button className="sign-in__logout-button" onClick={handleLogout}>
-                    Logout
-                </button>
-                <Link to="/getstarted" className="sign-in__continue-link">
-                    Continue
-                </Link>
-            </div>
-        </GoogleOAuthProvider>
+      <GoogleOAuthProvider clientId={clientId}>
+  <div className="sign-in">
+    <h1 className="sign-in__title">Sign In</h1>
+
+    {/* Google Sign-In Button */}
+    <div className="sign-in__google">
+      <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
+    </div>
+
+    {/* Green Buttons (Logout and Continue) */}
+    <div className="sign-in__buttons">
+      <button className="sign-in__button" onClick={handleLogout}>
+        Logout
+      </button>
+      <button className="sign-in__button">
+        Continue
+      </button>
+    </div>
+  </div>
+</GoogleOAuthProvider>
     );
 };
 
