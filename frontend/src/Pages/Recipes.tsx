@@ -93,11 +93,12 @@ const UserRecipesPage: React.FC = () => {
                         user_ID: userID,
                         // We can pass the entire array directly. The server must handle array query params.
                         // If needed, consider joining them into a string, e.g. ingredients: recipe.ingredients.join(",")
-                        ingredients: recipe.ingredients,
-                    },
+                        ingredients: JSON.stringify(recipe.ingredients),
+                    }
                 }
             );
-
+            console.log(recipe.ingredients);
+            console.log("User ID" + userID);
             console.log("Make Recipe Response:", response.data);
             setMakeMessage(`Successfully made "${recipe.name}"!`);
         } catch (error) {
@@ -105,6 +106,9 @@ const UserRecipesPage: React.FC = () => {
 
             // Decide how best to show the user this error; for now, a simple message:
             setMakeMessage(`Failed to make "${recipe.name}". Please try again later.`);
+        } finally {
+            console.log(recipe.ingredients);
+            console.log("User ID" + userID);
         }
     };
 
