@@ -97,7 +97,8 @@ const UserRecipesPage: React.FC = () => {
                     },
                 }
             );
-
+            console.log(recipe.ingredients);
+            console.log("User ID" + userID);
             console.log("Make Recipe Response:", response.data);
             setMakeMessage(`Successfully made "${recipe.name}"!`);
         } catch (error) {
@@ -105,6 +106,9 @@ const UserRecipesPage: React.FC = () => {
 
             // Decide how best to show the user this error; for now, a simple message:
             setMakeMessage(`Failed to make "${recipe.name}". Please try again later.`);
+        } finally {
+            console.log(recipe.ingredients);
+            console.log("User ID" + userID);
         }
     };
 
