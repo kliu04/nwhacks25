@@ -499,20 +499,5 @@ def subtract_quantities():
     connection.close()
 
 
-recipe = [
-    "Zucchini Green (0.778 kg)",
-    "Broccoli (0.808 kg)",
-    "Banana Cavendish (2 units)",
-    "1 tbsp honey",
-    "1/2 cup ice cubes",
-]
-
-
-# test:
-subtract_quantities(recipe)
-
-
-# test
-# register_login_user('31415926')
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
