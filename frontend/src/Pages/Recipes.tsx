@@ -24,17 +24,36 @@ const UserRecipesPage: React.FC = () => {
             }
 
             try {
-                const response = await axios.get("https://nwhacks25.onrender.com/generate_recipes", {
-                    params: { user_ID: userID },
-                });
-                console.log("API Response:", response.data);
+                const response = await axios.get(
+                    "https://nwhacks25.onrender.com/generate_recipes",
+                    {
+                        params: { user_ID: userID },
+                    }
+                );
 
-                if (response.data && Array.isArray(response.data.recipes)) {
-                    console.log("Recipes Array:", response.data.recipes);
-                    console.log("Recipes Length:", response.data.recipes.length);
-                    setRecipes(response.data.recipes);
+                console.log("Raw API Response:", response.data);
+                console.log("Type of response.data:", typeof response.data);
+
+                // Manually parse if it's a string, otherwise use directly
+                let data: any;
+                if (typeof response.data === "string") {
+                    try {
+                        data = JSON.parse(response.data);
+                    } catch (parseError) {
+                        console.error("Error parsing JSON:", parseError);
+                        setRecipes([]);
+                        return;
+                    }
                 } else {
-                    console.error("Unexpected API response structure:", response.data);
+                    data = response.data;
+                }
+
+                // Ensure the parsed 'data' has a 'recipes' array
+                if (data && data.recipes && Array.isArray(data.recipes)) {
+                    console.log("Recipes Array:", data.recipes);
+                    setRecipes(data.recipes);
+                } else {
+                    console.error("Unexpected API response structure:", data);
                     setRecipes([]);
                 }
             } catch (error) {
@@ -49,7 +68,6 @@ const UserRecipesPage: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        console.log("Updated recipes length:", recipes.length);
         console.log("Updated recipes data:", recipes);
     }, [recipes]);
 
