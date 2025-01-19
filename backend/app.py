@@ -81,7 +81,9 @@ def upload_receipt():
                         and an expiry date (string), which you must generate from context (what the item is)
                         as an offset of the current date,
                         Strip out all new lines and spaces. Ignore any extra information in the receipt such as prices.
-                        The current date is: {datetime.today().strftime('%Y-%m-%d')}
+                        The current date is: {datetime.today().strftime('%Y-%m-%d')}.
+                        Please spell check and expand abbreviations, for example klggs cere is kellogs cereal. Receipts will shorten
+                        names so please expand them.
                         """,
                         },
                         {"type": "image_url", "image_url": {"url": data}},
