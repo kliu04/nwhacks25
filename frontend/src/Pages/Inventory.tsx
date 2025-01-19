@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./Inventory.css"; // Ensure the path is correct
+import "./Inventory.css"; // <--- Create and import your Inventory.css
 
 interface InventoryItem {
     item: string;
@@ -19,7 +19,7 @@ const getExpiryClass = (expiry: string) => {
     return "expiry-week";
 };
 
-type InventoryTuple = [string, string, number | null, number | null]; // Removed macronutrients
+type InventoryTuple = [string, string, number | null, number | null];
 
 const ViewInventory: React.FC = () => {
     const [inventory, setInventory] = useState<InventoryItem[]>([]);
@@ -44,6 +44,10 @@ const ViewInventory: React.FC = () => {
                 // Make GET request with user_ID as a query parameter
                 const response = await axios.get("https://nwhacks25.onrender.com/inventory", {
                     params: { user_ID: userID },
+                    // If your API requires headers (e.g., for authentication), include them here
+                    // headers: {
+                    //     'Authorization': `Bearer ${token}`,
+                    // },
                 });
 
                 console.log("API Response:", response.data);
@@ -69,7 +73,7 @@ const ViewInventory: React.FC = () => {
                 // Check if data is an array (array of tuples)
                 if (Array.isArray(data)) {
                     const transformedInventory: InventoryItem[] = data.map((tuple: any[], index: number) => {
-                        // Ensure each tuple has at least 4 elements: [item, expiry, quantity, weight]
+                        // Ensure each tuple has at least 4 elements
                         if (tuple.length < 4) {
                             console.warn(`Tuple at index ${index} is incomplete:`, tuple);
                             return {
@@ -157,20 +161,19 @@ const ViewInventory: React.FC = () => {
         fetchInventory();
     }, []);
 
-    // Sorting function updated to handle only item, amount, and expiry
+    // Sorting function updated to handle amount
     const handleSort = (criteria: "item" | "amount" | "expiry") => {
         const sortedInventory = [...inventory].sort((a, b) => {
-            switch (criteria) {
-                case "amount":
-                    return a.amountNumeric - b.amountNumeric;
-                case "expiry":
-                    { const aDate = new Date(a.expiry).getTime();
-                    const bDate = new Date(b.expiry).getTime();
-                    return aDate - bDate; }
-                case "item":
-                default:
-                    return a.item.localeCompare(b.item);
+            if (criteria === "amount") {
+                return a.amountNumeric - b.amountNumeric;
             }
+            if (criteria === "expiry") {
+                const aDate = new Date(a.expiry).getTime();
+                const bDate = new Date(b.expiry).getTime();
+                return aDate - bDate;
+            }
+            // Default to sorting by item name
+            return a.item.localeCompare(b.item);
         });
         setSortBy(criteria);
         setInventory(sortedInventory);
@@ -220,19 +223,20 @@ const ViewInventory: React.FC = () => {
                 <table className="view-inventory__table">
                     <thead>
                     <tr className="view-inventory__header-row">
-                        <th className="view-inventory__header-cell">Item Name</th>
+                        <th className="view-inventory__header-cell"> Item Name</th>
                         <th className="view-inventory__header-cell">Quantity</th>
-                        <th className="view-inventory__header-cell">Expiry Date</th>
+                        <th className="view-inventory__header-cell">Best Before Data</th>
                     </tr>
                     </thead>
                     <tbody>
                     {inventory.map((invItem, index) => (
                         <tr key={index} className="view-inventory__row">
-                            <td className="view-inventory__cell" data-label="Item Name">{invItem.item}</td>
-                            <td className="view-inventory__cell" data-label="Quantity">{invItem.amount}</td>
-                            <td className={`view-inventory__cell ${getExpiryClass(invItem.expiry)}`} data-label="Expiry Date">
-                                {invItem.expiry}
-                            </td>
+                            <td className="view-inventory__cell">{invItem.item}</td>
+                            <td className="view-inventory__cell">{invItem.amount}</td>
+                            {/* <td className="view-inventory__cell${getExpiryClass(
+                                invItem.expiry )}">{invItem.expiry}</td> */}
+                            <td className={"view-inventory__cell " + getExpiryClass(invItem.expiry)}>{invItem.expiry}</td>
+
                         </tr>
                     ))}
                     </tbody>
@@ -244,4 +248,4 @@ const ViewInventory: React.FC = () => {
     );
 };
 
-export default ViewInventory; // Ensure this matches your export statement
+export default ViewInventory; // or "export default Inventory;" if you rename the component
