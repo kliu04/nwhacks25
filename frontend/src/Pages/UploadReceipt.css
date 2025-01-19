@@ -48,7 +48,42 @@
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.2s;
+
 }
+/* Common button styling for all buttons */
+.upload-receipt__button {
+    padding: 0.75rem 1.5rem;
+    background-color: #30ac4d; /* Green background */
+    color: white; /* White text */
+    border: none;
+    border-radius: 8px; /* Rounded corners */
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    margin: 0 0.5rem; /* Space between buttons */
+    transition: background-color 0.3s, transform 0.2s;
+  }
+  
+  .upload-receipt__button:hover {
+    background-color: #25913e; /* Darker green on hover */
+    transform: translateY(-2px); /* Subtle lift effect */
+  }
+  
+  
+  /* Container to align buttons horizontally */
+  .upload-receipt__buttons {
+    display: flex;
+    justify-content: center; /* Center buttons horizontally */
+    align-items: center; /* Align buttons vertically */
+    margin-top: 1rem;
+  }
+  
+.upload-receipt__button-container {
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+    align-items: center; /* Centers vertically */
+    height: 100px; /* Adjust height if needed */
+  }
 
 .upload-receipt__submit-button:hover {
     background-color: #25913e;
@@ -59,4 +94,20 @@
     margin-top: 1.5rem;
     text-decoration: none;
     color: #30ac4d;
+}
+
+.upload-receipt__next-link {
+    color: white;
+    background-color: #25913e;
+
+}
+
+.upload-receipt__next-button {
+    color: white;
+    background-color: #25913e;
+}
+
+.upload-receipt__next-link {
+    color: white;
+    background-color: #25913e;
 }

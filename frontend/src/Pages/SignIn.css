@@ -32,3 +32,38 @@
 .sign-in__continue-link:hover {
     background-color: #25913e;
 }
+
+/* Flex container for the buttons */
+.sign-in__buttons {
+    display: flex;
+    justify-content: center; /* Align buttons horizontally */
+    align-items: center; /* Align buttons vertically */
+    gap: 1rem; /* Add spacing between buttons */
+    margin-top: 1rem;
+  }
+  
+  /* Style for the Google Sign-In button wrapper */
+  .sign-in__google {
+    width: auto; /* Remove large width */
+    min-width: 180px; /* Ensure a minimum width */
+    text-align: center; /* Center content inside */
+  }
+  
+  /* Shared button styling */
+  .sign-in__button {
+    padding: 1rem 1.5rem;
+    background-color: #30ac4d; /* Green background */
+    color: white; /* White text */
+    border: none;
+    border-radius: 8px; /* Rounded corners */
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
+  }
+  
+  .sign-in__button:hover {
+    background-color: #25913e; /* Darker green on hover */
+    transform: translateY(-2px); /* Subtle lift effect */
+  }
+  
