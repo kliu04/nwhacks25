@@ -86,7 +86,7 @@ def upload_receipt():
                         Strip out all new lines and spaces. Ignore any extra information in the receipt such as prices.
                         The current date is: {datetime.today().strftime('%Y-%m-%d')}.
                         Please spell check and expand abbreviations, for example klggs cere is kellogs cereal. Receipts will shorten
-                        names so please expand them.
+                        names so please expand them. Ignore non-food items.
                         """,
                         },
                         {"type": "image_url", "image_url": {"url": data}},

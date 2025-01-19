@@ -68,6 +68,7 @@ const UploadReceipt: React.FC = () => {
             const config = {
                 method: "post",
                 maxBodyLength: Infinity,
+                maxContentLength: Infinity,
                 url: `https://nwhacks25.onrender.com/receipt`,
                 params: { user_ID: userID },
                 data: data,
@@ -120,15 +121,15 @@ const UploadReceipt: React.FC = () => {
                 ref={fileInputRef}
             />
 
-      {errorMessage && <p className="upload-receipt__error">{errorMessage}</p>}
-      {successMessage && <p className="upload-receipt__success">{successMessage}</p>}
+            {errorMessage && <p className="upload-receipt__error">{errorMessage}</p>}
+            {successMessage && <p className="upload-receipt__success">{successMessage}</p>}
 
-      {base64String && (
-        <div className="upload-receipt__preview">
-          <h3>Image Preview:</h3>
-          <img src={base64String} alt="Uploaded Receipt" className="upload-receipt__image" />
-        </div>
-      )}
+            {base64String && (
+                <div className="upload-receipt__preview">
+                    <h3>Image Preview:</h3>
+                    <img src={base64String} alt="Uploaded Receipt" className="upload-receipt__image" />
+                </div>
+            )}
 
             <div className="upload-receipt__buttons">
                 {/* Clear (doesn't post; removes image) */}
