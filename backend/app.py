@@ -495,6 +495,11 @@ def subtract_quantities():
     cursor.close()
     connection.close()
 
+    return (
+        jsonify({"message": f"Deleted ingredients from recipe."}),
+        200,
+    )
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
