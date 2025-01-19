@@ -60,7 +60,7 @@ const UserRecipesPage: React.FC = () => {
                         calories: typeof recipe.calories === "number" ? recipe.calories : parseFloat(recipe.calories),
                         protein: typeof recipe.protein === "number" ? recipe.protein : parseFloat(recipe.protein),
                         carbs: typeof recipe.carbs === "number" ? recipe.carbs : parseFloat(recipe.carbs),
-                        fats: typeof recipe.fats === "number" ? recipe.fats : parseFloat(recipe.fats),
+                        fats: typeof recipe.fats === "number" ? recipe.fat : parseFloat(recipe.fat),
                     }));
                     console.log(data.recipes);
                     setRecipes(validatedRecipes);
