@@ -10,6 +10,9 @@ function Home() {
             <nav>
                 <Link to="/recipes">Recipes</Link>
             </nav>
+            <nav>
+                <Link to="/upload-receipt">Upload a Receipt</Link>
+            </nav>
         </div>
     );
 }
