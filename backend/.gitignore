@@ -1,0 +1,7 @@
+__pycache__/
+uploads/
+.venv/
+venv/
+.env
+.DS_Store
+sqlite-autoconf-3480000/
