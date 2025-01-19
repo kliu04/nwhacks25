@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Inventory.css"; // <--- Create and import your Inventory.css
-import expirationIcon from "./icons/expiration.png";
 
 interface InventoryItem {
   item: string;
@@ -236,7 +235,7 @@ const ViewInventory: React.FC = () => {
                             <td className="view-inventory__cell">{invItem.amount}</td>
                             {/* <td className="view-inventory__cell${getExpiryClass(
                                 invItem.expiry )}">{invItem.expiry}</td> */}
-                                <td className={"view-inventory__cell " + getExpiryClass(invItem.expiry)}>{invItem.expiry} <img src={expirationIcon} alt="test" /></td>
+                                <td className={"view-inventory__cell " + getExpiryClass(invItem.expiry)}>{invItem.expiry}</td>
                                               
                         </tr>
                     ))}
