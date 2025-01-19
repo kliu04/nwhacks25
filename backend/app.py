@@ -171,10 +171,13 @@ def upload_receipt():
 def clear_user_data(user_ID):
     connection = sqlite3.connect("database.db")
     cursor = connection.cursor()
-    query = """DELETE FROM items WHERE user_ID = ?"""
-    cursor.execute(query, (user_ID,))
+    try:
+        query = """DELETE FROM items WHERE user_ID = ?"""
+        cursor.execute(query, (user_ID,))
 
-    connection.commit()
+        connection.commit()
+    except Exception as e:
+        pass
     cursor.close()
     connection.close()
 
@@ -183,82 +186,88 @@ def insert_data(receipt, user_ID):
     # Establish connection to SQLite database
     connection = sqlite3.connect(DB_PATH)
     cursor = connection.cursor()
+    try:
 
-    user_id = user_ID
+        user_id = user_ID
 
-    for item in receipt:
-        # Data to insert
-        item_name = item["name"]
-        expiry_date_str = item[
-            "expiry-date"
-        ]  # Use actual expiry_date from the item if available
-        expiry_date = None
-        try:
-            expiry_date = datetime.strptime(expiry_date_str, "%Y%m%d").date()
-        except:
-            expiry_date = datetime.strptime(expiry_date_str, "%Y-%m-%d").date()
-        quantity = None
-        weight = None
-        calories = item["calories"]
-        protein = item["protein"]
-        carbs = item["carbs"]
-        fat = item["fat"]
+        for item in receipt:
+            # Data to insert
+            item_name = item["name"]
+            expiry_date_str = item[
+                "expiry-date"
+            ]  # Use actual expiry_date from the item if available
+            expiry_date = None
+            try:
+                expiry_date = datetime.strptime(expiry_date_str, "%Y%m%d").date()
+            except:
+                expiry_date = datetime.strptime(expiry_date_str, "%Y-%m-%d").date()
+            quantity = None
+            weight = None
+            calories = item["calories"]
+            protein = item["protein"]
+            carbs = item["carbs"]
+            fat = item["fat"]
 
-        # Check if amount contains "kg"
-        if "kg" in str(item["amount"]):  # Assuming 'amount' is a string in the item
-            weight = float(item["amount"].replace("kg", "").strip())
-        else:
-            quantity = int(float(item["amount"]))  # Ensure it converts properly
+            # Check if amount contains "kg"
+            if "kg" in str(item["amount"]):  # Assuming 'amount' is a string in the item
+                weight = float(item["amount"].replace("kg", "").strip())
+            else:
+                quantity = int(float(item["amount"]))  # Ensure it converts properly
 
-        # Insert query
-        insert_query = """
-        INSERT INTO items (user_id, name, expiry_date, quantity, weight, calories, protein, carbs, fat)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """
-        data = (
-            user_id,
-            item_name,
-            expiry_date,
-            quantity,
-            weight,
-            calories,
-            protein,
-            carbs,
-            fat,
-        )
+            # Insert query
+            insert_query = """
+            INSERT INTO items (user_id, name, expiry_date, quantity, weight, calories, protein, carbs, fat)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """
+            data = (
+                user_id,
+                item_name,
+                expiry_date,
+                quantity,
+                weight,
+                calories,
+                protein,
+                carbs,
+                fat,
+            )
 
-        # Execute query and commit
-        cursor.execute(insert_query, data)
+            # Execute query and commit
+            cursor.execute(insert_query, data)
 
-    # Commit once after the loop to avoid multiple commits
-    connection.commit()
-
-    # Close connection
-    cursor.close()
-    connection.close()
+        # Commit once after the loop to avoid multiple commits
+        connection.commit()
+    except Exception as e:
+        pass
+    finally:
+        # Close connection
+        cursor.close()
+        connection.close()
 
 
 def get_all_items(user_ID):
 
     connection = sqlite3.connect(DB_PATH)
     cursor = connection.cursor()
+    try:
 
-    # Corrected SQL Query
-    select_query = """
-        SELECT name, expiry_date, quantity, weight, calories, protein, carbs, fat
-        FROM items 
-        WHERE user_id = ?
-    """
-    data = (user_ID,)
+        # Corrected SQL Query
+        select_query = """
+            SELECT name, expiry_date, quantity, weight, calories, protein, carbs, fat
+            FROM items 
+            WHERE user_id = ?
+        """
+        data = (user_ID,)
 
-    cursor.execute(select_query, data)
+        cursor.execute(select_query, data)
 
-    # Fetch all the results
-    items = cursor.fetchall()
-
-    # Close connection
-    cursor.close()
-    connection.close()
+        # Fetch all the results
+        items = cursor.fetchall()
+    except Exception as e:
+        pass
+    finally:
+        # Close connection
+        cursor.close()
+        connection.close()
 
     return items  # Return the fetched items
 
@@ -459,7 +468,6 @@ def generate_subtractions(recipe):
 def subtract_quantities():
     userid = request.args.get("user_ID")
     recipe = json.loads(request.args.get("ingredients"))
-    print(recipe)
 
     to_updates = json.loads(generate_subtractions(recipe))
     to_updates = to_updates["ingredient_tuples"]
@@ -467,35 +475,23 @@ def subtract_quantities():
     connection = sqlite3.connect("database.db")
     cursor = connection.cursor()
 
-    # Fetch all item names for the user
-    select_query = """
-        SELECT name
-        FROM items 
-        WHERE user_id = ?
-    """
-    data = (userid,)
-    cursor.execute(select_query, data)
-    items = cursor.fetchall()
+    try:
+        # Fetch all item names for the user
+        select_query = """
+            SELECT name
+            FROM items 
+            WHERE user_id = ?
+        """
+        data = (userid,)
+        cursor.execute(select_query, data)
+        items = cursor.fetchall()
 
-    for update in to_updates:
-        quant = True
-        if update["name"] in [item[0] for item in items]:
-            # Fetch all item names for the user
-            select_quant_query = """
-                SELECT quantity
-                FROM items 
-                WHERE user_id = ? AND name = ?
-            """
-            data = (
-                userid,
-                update["name"],
-            )
-            cursor.execute(select_quant_query, data)
-            quant_result = cursor.fetchall()
-            if quant_result[0][0] is None:
-                quant = False
-                select_weight_query = """
-                    SELECT weight
+        for update in to_updates:
+            quant = True
+            if update["name"] in [item[0] for item in items]:
+                # Fetch all item names for the user
+                select_quant_query = """
+                    SELECT quantity
                     FROM items 
                     WHERE user_id = ? AND name = ?
                 """
@@ -503,54 +499,69 @@ def subtract_quantities():
                     userid,
                     update["name"],
                 )
-                cursor.execute(select_weight_query, data)
-                weight_result = cursor.fetchall()
-            if quant:
-                new_amount = quant_result[0][0] - update["amount"]
-                update_query = """
-                    UPDATE items
-                    SET quantity = ?
-                    WHERE user_id = ? AND name = ?
-                """
+                cursor.execute(select_quant_query, data)
+                quant_result = cursor.fetchall()
+                if quant_result[0][0] is None:
+                    quant = False
+                    select_weight_query = """
+                        SELECT weight
+                        FROM items 
+                        WHERE user_id = ? AND name = ?
+                    """
+                    data = (
+                        userid,
+                        update["name"],
+                    )
+                    cursor.execute(select_weight_query, data)
+                    weight_result = cursor.fetchall()
+                if quant:
+                    new_amount = quant_result[0][0] - update["amount"]
+                    update_query = """
+                        UPDATE items
+                        SET quantity = ?
+                        WHERE user_id = ? AND name = ?
+                    """
 
-            else:
-                new_amount = weight_result[0][0] - update["amount"]
-                update_query = """
-                    UPDATE items
-                    SET weight = ?
-                    WHERE user_id = ? AND name = ?
-                """
+                else:
+                    new_amount = weight_result[0][0] - update["amount"]
+                    update_query = """
+                        UPDATE items
+                        SET weight = ?
+                        WHERE user_id = ? AND name = ?
+                    """
 
-            data = (
-                new_amount,
-                userid,
-                update["name"],
-            )
-            cursor.execute(update_query, data)
-
-            # remove the amount if it's amount <= 0
-            if new_amount <= 0:
-                # new_amount = 0
-                delete_query = """
-                    DELETE FROM items
-                    WHERE user_id = ? AND name = ?
-                """
                 data = (
+                    new_amount,
                     userid,
                     update["name"],
                 )
-                cursor.execute(delete_query, data)
+                cursor.execute(update_query, data)
 
-            connection.commit()
+                # remove the amount if it's amount <= 0
+                if new_amount <= 0:
+                    # new_amount = 0
+                    delete_query = """
+                        DELETE FROM items
+                        WHERE user_id = ? AND name = ?
+                    """
+                    data = (
+                        userid,
+                        update["name"],
+                    )
+                    cursor.execute(delete_query, data)
 
-    # Close connection
-    cursor.close()
-    connection.close()
+                connection.commit()
+                return (
+                    jsonify({"message": f"Deleted ingredients from recipe."}),
+                    200,
+                )
 
-    return (
-        jsonify({"message": f"Deleted ingredients from recipe."}),
-        200,
-    )
+    except Exception as e:
+        return jsonify({"error": "Server Error"}), 500
+    finally:
+        # Close connection
+        cursor.close()
+        connection.close()
 
 
 if __name__ == "__main__":
