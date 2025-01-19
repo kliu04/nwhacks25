@@ -437,14 +437,23 @@ def subtract_quantities(recipe):
                     WHERE user_id = ? AND name = ?
                 """
             
-            if new_amount < 0:
-                new_amount = 0
             print(update['name'])
             print(new_amount)
-
             data = (new_amount, userid,update['name'], )
             cursor.execute(update_query, data)
+
+            # remove the amount if it's amount <= 0 
+            if new_amount <= 0:
+                #new_amount = 0
+                delete_query = """
+                    DELETE FROM items
+                    WHERE user_id = ? AND name = ?
+                """
+                data = (userid,update['name'], )
+                cursor.execute(delete_query, data)
+
             connection.commit()
+    
 
     # Close connection
     cursor.close()
