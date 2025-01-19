@@ -182,10 +182,10 @@ def insert_data(receipt, user_ID):
 
         # Insert query
         insert_query = """
-        INSERT INTO items (user_id, name, expiry_date, quantity, weight)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO items (user_id, name, expiry_date, quantity, weight, calories, protein, carbs, fat)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
-        data = (user_id, item_name, expiry_date, quantity, weight)
+        data = (user_id, item_name, expiry_date, quantity, weight, calories, protei, carbs, fat)
 
         # Execute query and commit
         cursor.execute(insert_query, data)
@@ -205,7 +205,7 @@ def get_all_items(user_ID):
 
     # Corrected SQL Query
     select_query = """
-        SELECT name, expiry_date, quantity, weight 
+        SELECT name, expiry_date, quantity, weight, calories, protein, carbs, fat
         FROM items 
         WHERE user_id = ?
     """
@@ -495,7 +495,7 @@ recipe = [
     ]
 
 
-# test:
+#test:
 subtract_quantities(recipe)
 
 
