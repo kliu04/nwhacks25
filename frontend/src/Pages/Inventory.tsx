@@ -224,9 +224,9 @@ const ViewInventory: React.FC = () => {
                 <table className="view-inventory__table">
                     <thead>
                     <tr className="view-inventory__header-row">
-                        <th className="view-inventory__header-cell">Item</th>
-                        <th className="view-inventory__header-cell">Amount</th>
-                        <th className="view-inventory__header-cell">Expiry</th>
+                        <th className="view-inventory__header-cell"> Item Name</th>
+                        <th className="view-inventory__header-cell">Quantity</th>
+                        <th className="view-inventory__header-cell">Best Before Data</th>
                     </tr>
                     </thead>
                     <tbody>
