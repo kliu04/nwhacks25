@@ -2,17 +2,17 @@ from openai import OpenAI
 from flask import Flask, request, jsonify
 from datetime import datetime
 import sqlite3
+import os
 
 app = Flask(__name__)
 client = OpenAI()
-
 
 
 # stub
 current_user_id = 1
 
 
-@app.route("/upload", methods=["POST"])
+@app.route("/receipt", methods=["POST"])
 def upload_base64_image():
     data = request.form.get("image")
 
@@ -93,10 +93,6 @@ def upload_base64_image():
     except Exception as e:
         return jsonify({"error": f"Failed to process image: {str(e)}"}), 500
 
-# stub
-current_user_id=1
-
-
 
 def insert_data(receipt, current_user):
     # Establish connection to SQLite database
@@ -142,13 +138,44 @@ def insert_data(receipt, current_user):
     connection.close()
 
 
+def get_all_items(current_user):
+    ## path issue
+    # SQLite connection (provide the path to your SQLite database file)
+
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(BASE_DIR, "database.db")
+
+    connection = sqlite3.connect(db_path)
+    cursor = connection.cursor()
+
+    # Assuming current_user.id is available
+    userid = current_user_id
+
+    # Corrected SQL Query
+    select_query = """
+        SELECT name, expiry_date, quantity, weight 
+        FROM items 
+        WHERE user_id = ?
+    """
+    data = (userid,)
+
+    cursor.execute(select_query, data)
+
+    # Fetch all the results
+    items = cursor.fetchall()
+
+    # Close connection
+    cursor.close()
+    connection.close()
+
+    return items  # Return the fetched items
+
+
+@app.route("/generate_recipes", methods=["GET"])
 def generate_recipes(current_user):
-    data = [
-        ("Zucchini Green", "2023-11-08", 5, None),
-        ("Banana Cavendish", "2023-11-03", 7, None),
-        ("Potatoes Brushed", "2023-11-11", None, 1.328),
-        ("Broccoli", "2023-11-06", 3, None),
-    ]
+    data = get_all_items(current_user)
+    print(data)
+    # [(name, amount)]
     # need to sort the array in order of increasing expiry date
     response = client.chat.completions.create(
         model="gpt-4o",
@@ -158,8 +185,10 @@ def generate_recipes(current_user):
                 "role": "user",
                 "content": f"""
                     Generate recipes based on these ingredients: {data}, 
-                    prioritizing using those with the soonest expiry time, and with as few
-                    ingredients that are not in the list as possible.""",
+                    prioritizing using those with the earliest expiry time (2nd index), and with as few
+                    ingredients that are not in the list as possible. Use exactly the wording we have in the array, 
+                    and do not use more than what is given (either weight which is the last index or quantity which is the
+                    3rd index). Input the exact number of ingredients used or weight if applicable in kg.""",
             },
         ],
         response_format={
@@ -214,6 +243,7 @@ def generate_recipes(current_user):
     print(response.choices[0].message.content)
 
 
+# get recipes, inventory, set inventory
 if __name__ == "__main__":
     generate_recipes(1)
     # app.run(debug=True, port=5000)
