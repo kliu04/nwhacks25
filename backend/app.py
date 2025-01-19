@@ -269,8 +269,6 @@ def generate_recipes():
 
 
 # get recipes, inventory, set inventory
-if __name__ == "__main__":
-    app.run(debug=True, port=5000)
 
 
 @app.route("/register", methods=["POST"])
@@ -306,3 +304,5 @@ def register_user():
 
 # test
 # register_login_user('31415926')
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)
