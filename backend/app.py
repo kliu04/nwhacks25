@@ -131,7 +131,7 @@ def upload_receipt():
         )
         print(response.choices[0].message.content)
         # hacky
-        insert_data((response.choices[0].message.content)["items"], user_ID)
+        # insert_data((response.choices[0].message.content)["items"], user_ID)
         return (
             jsonify({"message": "Image uploaded successfully"}),
             200,
