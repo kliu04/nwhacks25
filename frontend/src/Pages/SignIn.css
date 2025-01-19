@@ -1,0 +1,35 @@
+.sign-in {
+    padding: 2rem;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.sign-in__title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+}
+
+.sign-in__logout-button {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #30ac4d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.sign-in__continue-link {
+    margin-top: 2rem;
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #30ac4d;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.sign-in__continue-link:hover {
+    background-color: #25913e;
+}

@@ -1,0 +1,48 @@
+.get-started {
+    padding: 2rem;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.get-started__title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.get-started__subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.get-started__list {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    max-width: 600px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.get-started__list-item {
+    margin: 0.5rem;
+}
+
+.get-started__actions {
+    margin-top: 2rem;
+}
+
+.get-started__skip-button {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #30ac4d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.get-started__skip-button:hover {
+    background-color: #25913e;
+}
