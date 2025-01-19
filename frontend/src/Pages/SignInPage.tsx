@@ -1,6 +1,6 @@
 import React from "react";
 import { GoogleOAuthProvider, GoogleLogin, googleLogout, CredentialResponse } from "@react-oauth/google";
-import { jwtDecode }from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { Link, useNavigate } from "react-router-dom";
 import axios, { AxiosError } from "axios";
 import "./SignIn.css"; // Import the updated CSS
@@ -94,7 +94,7 @@ const SignIn: React.FC = () => {
         <button className="sign-in__logout-button" onClick={handleLogout}>
           Logout
         </button>
-        <Link to="/getstarted" className="sign-in__continue-link">
+        <Link to="/" className="sign-in__continue-link">
           Continue
         </Link>
       </div>
