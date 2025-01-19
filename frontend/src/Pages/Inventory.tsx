@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./Inventory.css"; // <--- Ensure this CSS file exists and is correctly styled
+import "./Inventory.css"; // Ensure the path is correct
+
 
 interface InventoryItem {
     item: string;
@@ -47,11 +48,7 @@ const ViewInventory: React.FC = () => {
             try {
                 // Make GET request with user_ID as a query parameter
                 const response = await axios.get("https://nwhacks25.onrender.com/inventory", {
-                    params: { user_ID: userID },
-                    // If your API requires headers (e.g., for authentication), include them here
-                    // headers: {
-                    //     'Authorization': `Bearer ${token}`,
-                    // },
+                    params: {user_ID: userID},
                 });
 
                 console.log("API Response:", response.data);
@@ -162,8 +159,7 @@ const ViewInventory: React.FC = () => {
                     });
 
                     setInventory(transformedInventory);
-                }
-                else {
+                } else {
                     console.error("Unexpected API response structure:", data);
                     setError("Unexpected response structure from the server.");
                     setInventory([]);
@@ -187,10 +183,11 @@ const ViewInventory: React.FC = () => {
             switch (criteria) {
                 case "amount":
                     return a.amountNumeric - b.amountNumeric;
-                case "expiry":
-                    { const aDate = new Date(a.expiry).getTime();
+                case "expiry": {
+                    const aDate = new Date(a.expiry).getTime();
                     const bDate = new Date(b.expiry).getTime();
-                    return aDate - bDate; }
+                    return aDate - bDate;
+                }
                 case "calories":
                     return a.calories - b.calories;
                 case "protein":
@@ -268,15 +265,18 @@ const ViewInventory: React.FC = () => {
                     <tbody>
                     {inventory.map((invItem, index) => (
                         <tr key={index} className="view-inventory__row">
-                            <td className="view-inventory__cell">{invItem.item}</td>
-                            <td className="view-inventory__cell">{invItem.amount}</td>
-                            <td className={`view-inventory__cell ${getExpiryClass(invItem.expiry)}`}>
+                            <td className="view-inventory__cell" data-label="Item Name">{invItem.item}</td>
+                            <td className="view-inventory__cell" data-label="Quantity">{invItem.amount}</td>
+                            <td className={`view-inventory__cell ${getExpiryClass(invItem.expiry)}`}
+                                data-label="Expiry Date">
                                 {invItem.expiry}
                             </td>
-                            <td className="view-inventory__cell">{invItem.calories.toFixed(2)}</td>
-                            <td className="view-inventory__cell">{invItem.protein.toFixed(2)}</td>
-                            <td className="view-inventory__cell">{invItem.carbs.toFixed(2)}</td>
-                            <td className="view-inventory__cell">{invItem.fats.toFixed(2)}</td>
+                            <td className="view-inventory__cell"
+                                data-label="Calories">{invItem.calories.toFixed(2)}</td>
+                            <td className="view-inventory__cell"
+                                data-label="Protein (g)">{invItem.protein.toFixed(2)}</td>
+                            <td className="view-inventory__cell" data-label="Carbs (g)">{invItem.carbs.toFixed(2)}</td>
+                            <td className="view-inventory__cell" data-label="Fats (g)">{invItem.fats.toFixed(2)}</td>
                         </tr>
                     ))}
                     </tbody>
@@ -286,6 +286,6 @@ const ViewInventory: React.FC = () => {
             )}
         </div>
     );
-};
+}
 
-export default ViewInventory; // Ensure this matches your export statement
+    export default ViewInventory;
