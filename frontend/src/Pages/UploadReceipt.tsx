@@ -131,7 +131,7 @@ const UploadReceipt: React.FC = () => {
                 </div>
             )}
 
-            <div className="upload-receipt__buttons">
+            <div className=".upload-receipt__submit-button">
                 {/* Clear (doesn't post; removes image) */}
                 <button
                     onClick={handleClear}
