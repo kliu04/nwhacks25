@@ -115,6 +115,68 @@
     border-bottom: 1px solid #ddd;
     color: #555;
 }
+/* Table Container with Rounded Corners */
+.view-inventory {
+    border: 1px solid #ddd;
+    border-radius: 10px; /* Rounds the entire table container */
+    overflow: hidden; /* Ensures content fits inside rounded corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for emphasis */
+}
+
+/* Table Styling */
+.view-inventory__table {
+    width: 100%;
+    border-collapse: collapse; /* Ensures spacing consistency */
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+}
+
+/* Header Row with Top Rounded Corners */
+.view-inventory__header-row {
+    background-color: #4CAF50; /* Green header */
+    color: white;
+}
+
+.view-inventory__header-cell {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 2px solid #ddd;
+}
+
+/* Apply Rounded Corners to the First and Last Header Cells */
+.view-inventory__header-cell:first-child {
+    border-top-left-radius: 10px; /* Round top-left corner */
+}
+
+.view-inventory__header-cell:last-child {
+    border-top-right-radius: 10px; /* Round top-right corner */
+}
+
+/* Table Rows */
+.view-inventory__row:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.view-inventory__row:hover {
+    background-color: #f1f1f1; /* Light gray hover effect */
+}
+
+/* Table Cells */
+.view-inventory__cell {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    color: #555;
+}
+
+/* Round Bottom Corners on the Last Row Cells */
+.view-inventory__row:last-child .view-inventory__cell:first-child {
+    border-bottom-left-radius: 10px; /* Round bottom-left corner */
+}
+
+.view-inventory__row:last-child .view-inventory__cell:last-child {
+    border-bottom-right-radius: 10px; /* Round bottom-right corner */
+}
 
 /* Table Container Rounded Corners */
 .view-inventory {
