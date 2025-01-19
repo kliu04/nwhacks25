@@ -3,6 +3,8 @@ from flask import Flask, request, jsonify
 from datetime import datetime
 import sqlite3
 import os
+import json 
+from fractions import Fraction
 
 app = Flask(__name__)
 client = OpenAI()
@@ -249,6 +251,206 @@ if __name__ == "__main__":
     # app.run(debug=True, port=5000)
 
 
+# def make_recipe_map(recipe):
+#     connection = sqlite3.connect("database.db")
+#     cursor = connection.cursor()
+
+#     # Assuming current_user_id is available
+#     userid = current_user_id
+
+#     # Fetch all item names for the user
+#     select_query = """
+#         SELECT name
+#         FROM items 
+#         WHERE user_id = ?
+#     """
+#     data = (userid,)
+#     cursor.execute(select_query, data)
+#     items = [row[0].lower() for row in cursor.fetchall()]  # Fetch item names and convert to lowercase
+
+#     ingredients_raw = recipe["ingredients"]
+#     ingredient_map = {}
+
+#     for item in ingredients_raw:
+#         # Split the quantity and ingredient name
+#         parts = item.split(" ", 1)
+#         if len(parts) == 2:
+#             quantity_str, ingredient_name = parts
+#             # Normalize ingredient name for matching
+#             ingredient_name = ingredient_name.split(",")[0].lower().strip()
+            
+#             # Find the closest match for the ingredient name in the database
+#             matched_item = None
+#             for db_item in items:
+#                 if ingredient_name in db_item:  # Check if the ingredient name is part of the database item
+#                     matched_item = db_item
+#                     break
+
+#             if matched_item:
+#                 # Convert the quantity to a float
+#                 try:
+#                     quantity = float(Fraction(quantity_str))  # Convert fractions to decimal
+#                 except ValueError:
+#                     quantity = None  # Handle cases where the quantity isn't valid
+#                 ingredient_map[matched_item] = quantity
+
+#     # Close connection
+#     cursor.close()
+#     connection.close()
+
+#     return ingredient_map
+
+
+
+def generate_subtractions(recipe):
+    ingredients_raw = recipe["ingredients"]
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "developer", "content": "You are a helpful assistant."},
+            {
+                "role": "user",
+                "content": f"""
+                    Generate a list of tuples based on these ingredients: {ingredients_raw}.
+                    Each tuple consists of two elements: the ingredient name as a string and the ingredient amount as a number (can be with decimals).
+                """,
+            },
+        ],
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "ingredient_tuples",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "ingredient_tuples": {
+                            "type": "array",  # Use an array of objects
+                            "description": "List of ingredient tuples.",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "The name of the ingredient."
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "description": "The amount of the ingredient."
+                                    }
+                                },
+                                "required": ["name", "amount"],
+                                "additionalProperties": False
+                            }
+                        }
+                    },
+                    "required": ["ingredient_tuples"],
+                    "additionalProperties": False
+                }
+            }
+        },
+    )
+
+    # print(response.choices[0].message.content)
+
+
+    return response.choices[0].message.content
+
+
+def subtract_quantities(recipe):
+    to_updates = json.loads(generate_subtractions(recipe))
+    #print(to_updates)
+    to_updates = to_updates["ingredient_tuples"]
+
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+
+    # Assuming current_user_id is available
+    userid = current_user_id
+
+    # Fetch all item names for the user
+    select_query = """
+        SELECT name
+        FROM items 
+        WHERE user_id = ?
+    """
+    data = (userid,)
+    cursor.execute(select_query, data)
+    items = cursor.fetchall()
+
+    #print(items)
+    for update in to_updates:
+        quant = True
+        if update['name'] in [item[0] for item in items]:
+             # Fetch all item names for the user
+            select_quant_query = """
+                SELECT quantity
+                FROM items 
+                WHERE user_id = ? AND name = ?
+            """
+            data = (userid,update['name'], )
+            cursor.execute(select_quant_query, data)
+            quant_result = cursor.fetchall()
+            if quant_result[0][0] is None:
+                quant = False
+                select_weight_query = """
+                    SELECT weight
+                    FROM items 
+                    WHERE user_id = ? AND name = ?
+                """
+                data = (userid,update['name'], )
+                cursor.execute(select_weight_query, data)
+                weight_result = cursor.fetchall()
+            if quant:
+                new_amount = quant_result[0][0] - update['amount']
+                update_query =  """
+                    UPDATE items
+                    SET quantity = ?
+                    WHERE user_id = ? AND name = ?
+                """
+
+            else:
+                new_amount = weight_result[0][0] - update['amount']
+                update_query =  """
+                    UPDATE items
+                    SET weight = ?
+                    WHERE user_id = ? AND name = ?
+                """
+            
+            if new_amount < 0:
+                new_amount = 0
+            print(update['name'])
+            print(new_amount)
+
+            data = (new_amount, userid,update['name'], )
+            cursor.execute(update_query, data)
+            connection.commit()
+
+    # Close connection
+    cursor.close()
+    connection.close()
+
+
+recipe = {
+    "name": "Zucchini Banana Smoothie",
+    "ingredients": [
+        "Zucchini Green (0.778 kg)",
+        "Broccoli (0.808 kg)",
+        "Banana Cavendish (2 units)",
+        "1 tbsp honey",
+        "1/2 cup ice cubes"
+    ],
+    "steps": [
+        "Combine the banana, zucchini, milk, honey, and ice cubes in a blender.",
+        "Blend until smooth.",
+        "Pour into a glass and serve immediately."
+    ],
+    "requiresExtra": True
+}
+
+
+
+subtract_quantities(recipe)
+
 def get_all_items():
     # SQLite connection (provide the path to your SQLite database file)
     connection = sqlite3.connect("database.db")
@@ -287,18 +489,22 @@ def register_login_user(userID):
     # Check if the user already exists
     cursor.execute('SELECT * FROM users WHERE user_id = ?', (userID,))
     existing_user = cursor.fetchone()
-
+ 
     if existing_user:
         print(f"User with id {userID} already exists.")
     else:
         # Insert the new user into the database
         cursor.execute('INSERT INTO users (user_id) VALUES (?)', (userID,))
+        
         conn.commit()
         print(f"User with id {userID} has been successfully registered.")
     
     # Close the connection
+    cursor.close()
     conn.close()
 
 #test
 #register_login_user('31415926')
  
+
+
