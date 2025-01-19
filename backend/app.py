@@ -10,7 +10,6 @@ app = Flask(__name__)
 CORS(app)
 CORS(app, resources={r"/*": {"origins": ["https://nwhacks25.vercel.app/"]}})
 client = OpenAI()
-app.config["MAX_CONTENT_LENGTH"] = 1024 * 1024 * 1024  # 50 MB
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
