@@ -4,3 +4,4 @@ uploads/
 venv/
 .env
 .DS_Store
+sqlite-autoconf-3480000/

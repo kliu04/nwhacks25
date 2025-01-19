@@ -1,11 +1,17 @@
 from openai import OpenAI
 from flask import Flask, request, jsonify
 from datetime import datetime
-import mysql.connector
+import sqlite3
 
 
 app = Flask(__name__)
 client = OpenAI()
+
+# stub
+current_user_id = 1
+
+# stub
+current_user_id = 1
 
 
 @app.route("/upload", methods=["POST"])
@@ -91,16 +97,11 @@ def upload_base64_image():
 
 
 def insert_data(receipt, current_user):
-    # Establish connection
-    connection = mysql.connector.connect(
-        host="127.0.0.1",  # Use localhost or your database IP
-        database="database",
-        # user='your_username',  # Add your MySQL username
-        # password='your_password'  # Add your MySQL password
-    )
+    # Establish connection to SQLite database
+    connection = sqlite3.connect("database.db")
     cursor = connection.cursor()
 
-    user_id = current_user.id
+    user_id = current_user_id
 
     receipt = receipt["items"]
 
@@ -124,7 +125,7 @@ def insert_data(receipt, current_user):
         # Insert query
         insert_query = """
         INSERT INTO items (user_id, name, expiry_date, quantity, weight)
-        VALUES (%s, %s, %s, %s, %s)
+        VALUES (?, ?, ?, ?, ?)
         """
         data = (user_id, item_name, expiry_date, quantity, weight)
 
@@ -214,3 +215,32 @@ def generate_recipes(current_user):
 if __name__ == "__main__":
     generate_recipes(1)
     # app.run(debug=True, port=5000)
+
+
+def get_all_items():
+    # SQLite connection (provide the path to your SQLite database file)
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+
+    # Assuming current_user.id is available
+    userid = current_user_id
+
+    # Corrected SQL Query
+    select_query = """
+        SELECT name, expiry_date, quantity, weight 
+        FROM items 
+        WHERE user_id = ?
+    """
+    data = (userid,)
+
+    cursor.execute(select_query, data)
+
+    # Fetch all the results
+    items = cursor.fetchall()
+
+    # Close connection
+    cursor.close()
+    connection.close()
+
+    print(items)
+    return items  # Return the fetched items
