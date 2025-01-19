@@ -193,7 +193,8 @@ def get_all_items(current_user):
 
 
 @app.route("/generate_recipes", methods=["GET"])
-def generate_recipes(current_user):
+def generate_recipes():
+    current_user = request.args.get("user_ID")
     data = get_all_items(current_user)
     print(data)
     # [(name, amount)]
