@@ -53,7 +53,7 @@ def upload_receipt():
     cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_ID,))
     existing_user = cursor.fetchone()
 
-    if existing_user:
+    if not existing_user:
         cursor.close()
         conn.close()
         return (
