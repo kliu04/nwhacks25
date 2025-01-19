@@ -15,25 +15,21 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
 
 
-# stub
-current_user_id = 1
-
-
 @app.route("/inventory", methods=["GET", "POST"])
 def get_inventory():
     if request.method == "GET":
         try:
-            current_user = request.args.get("user_ID")
-            items = get_all_items(current_user)
+            user_ID = request.args.get("user_ID")
+            items = get_all_items(user_ID)
             return (jsonify(items), 200)
         except Exception as e:
             return (jsonify({"error": "Cannot get inventory"}), 400)
     # POST
     try:
-        current_user = request.args.get("user_ID")
+        user_ID = request.args.get("user_ID")
         items = request.args.get("items")
-        clear_user_data(current_user)
-        insert_data(items, current_user)
+        clear_user_data(user_ID)
+        insert_data(items, user_ID)
         return (jsonify({"message": "Items set successfully"}), 200)
     except Exception as e:
         return (jsonify({"error:" "Cannot set inventory"}), 400)
@@ -141,29 +137,26 @@ def upload_receipt():
         return (jsonify({"error": f"Failed to process image: {str(e)}"}), 500)
 
 
-def clear_user_data(current_user):
+def clear_user_data(user_ID):
     connection = sqlite3.connect("database.db")
     cursor = connection.cursor()
     query = """DELETE FROM items WHERE user_ID = ?"""
-    cursor.execute(query, (current_user,))
+    cursor.execute(query, (user_ID,))
 
     cursor.close()
     connection.close()
 
 
-def insert_data(receipt, current_user):
+def insert_data(receipt, user_ID):
     # Establish connection to SQLite database
     connection = sqlite3.connect(DB_PATH)
     cursor = connection.cursor()
 
-    user_id = current_user
-
-    # receipt = receipt["items"]
+    user_id = user_ID
 
     for item in receipt:
         # Data to insert
-        item_name = item["name"]  # Assuming item name comes from the receipt
-        # ToDo: done
+        item_name = item["name"]
         expiry_date_str = item[
             "expiry-date"
         ]  # Use actual expiry_date from the item if available
@@ -195,15 +188,10 @@ def insert_data(receipt, current_user):
     connection.close()
 
 
-def get_all_items(current_user):
-    ## path issue
-    # SQLite connection (provide the path to your SQLite database file)
+def get_all_items(user_ID):
 
     connection = sqlite3.connect(DB_PATH)
     cursor = connection.cursor()
-
-    # Assuming current_user.id is available
-    userid = current_user
 
     # Corrected SQL Query
     select_query = """
@@ -211,7 +199,7 @@ def get_all_items(current_user):
         FROM items 
         WHERE user_id = ?
     """
-    data = (userid,)
+    data = (user_ID,)
 
     cursor.execute(select_query, data)
 
@@ -227,8 +215,8 @@ def get_all_items(current_user):
 
 @app.route("/generate_recipes", methods=["GET"])
 def generate_recipes():
-    current_user = request.args.get("user_ID")
-    data = get_all_items(current_user)
+    user_ID = request.args.get("user_ID")
+    data = get_all_items(user_ID)
     print(data)
     # [(name, amount)]
     # need to sort the array in order of increasing expiry date
