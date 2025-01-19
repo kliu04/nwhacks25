@@ -343,6 +343,7 @@ def register_user():
 
     # Close the connection
 
+
 # takes list of ingredients
 def generate_subtractions(recipe):
     # ingredients_raw = recipe["ingredients"]
@@ -374,46 +375,45 @@ def generate_subtractions(recipe):
                                 "properties": {
                                     "name": {
                                         "type": "string",
-                                        "description": "The name of the ingredient."
+                                        "description": "The name of the ingredient.",
                                     },
                                     "amount": {
                                         "type": "number",
-                                        "description": "The amount of the ingredient."
-                                    }
+                                        "description": "The amount of the ingredient.",
+                                    },
                                 },
                                 "required": ["name", "amount"],
-                                "additionalProperties": False
-                            }
+                                "additionalProperties": False,
+                            },
                         }
                     },
                     "required": ["ingredient_tuples"],
-                    "additionalProperties": False
-                }
-            }
+                    "additionalProperties": False,
+                },
+            },
         },
     )
 
     # print(response.choices[0].message.content)
 
-
     return response.choices[0].message.content
+
 
 # takes list of ingredients
 @app.route("/subtract", methods=["POST"])
-def subtract_quantities(recipe):
+def subtract_quantities():
     userid = request.args.get("user_ID")
+    recipe = request.args.get("recipe")
 
     # stub
     # userid = 1
 
     to_updates = json.loads(generate_subtractions(recipe))
-    #print(to_updates)
+    # print(to_updates)
     to_updates = to_updates["ingredient_tuples"]
 
     connection = sqlite3.connect("database.db")
     cursor = connection.cursor()
-
-    
 
     # Fetch all item names for the user
     select_query = """
@@ -425,17 +425,20 @@ def subtract_quantities(recipe):
     cursor.execute(select_query, data)
     items = cursor.fetchall()
 
-    #print(items)
+    # print(items)
     for update in to_updates:
         quant = True
-        if update['name'] in [item[0] for item in items]:
-             # Fetch all item names for the user
+        if update["name"] in [item[0] for item in items]:
+            # Fetch all item names for the user
             select_quant_query = """
                 SELECT quantity
                 FROM items 
                 WHERE user_id = ? AND name = ?
             """
-            data = (userid,update['name'], )
+            data = (
+                userid,
+                update["name"],
+            )
             cursor.execute(select_quant_query, data)
             quant_result = cursor.fetchall()
             if quant_result[0][0] is None:
@@ -445,42 +448,51 @@ def subtract_quantities(recipe):
                     FROM items 
                     WHERE user_id = ? AND name = ?
                 """
-                data = (userid,update['name'], )
+                data = (
+                    userid,
+                    update["name"],
+                )
                 cursor.execute(select_weight_query, data)
                 weight_result = cursor.fetchall()
             if quant:
-                new_amount = quant_result[0][0] - update['amount']
-                update_query =  """
+                new_amount = quant_result[0][0] - update["amount"]
+                update_query = """
                     UPDATE items
                     SET quantity = ?
                     WHERE user_id = ? AND name = ?
                 """
 
             else:
-                new_amount = weight_result[0][0] - update['amount']
-                update_query =  """
+                new_amount = weight_result[0][0] - update["amount"]
+                update_query = """
                     UPDATE items
                     SET weight = ?
                     WHERE user_id = ? AND name = ?
                 """
-            
-            print(update['name'])
+
+            print(update["name"])
             print(new_amount)
-            data = (new_amount, userid,update['name'], )
+            data = (
+                new_amount,
+                userid,
+                update["name"],
+            )
             cursor.execute(update_query, data)
 
-            # remove the amount if it's amount <= 0 
+            # remove the amount if it's amount <= 0
             if new_amount <= 0:
-                #new_amount = 0
+                # new_amount = 0
                 delete_query = """
                     DELETE FROM items
                     WHERE user_id = ? AND name = ?
                 """
-                data = (userid,update['name'], )
+                data = (
+                    userid,
+                    update["name"],
+                )
                 cursor.execute(delete_query, data)
 
             connection.commit()
-    
 
     # Close connection
     cursor.close()
@@ -488,12 +500,12 @@ def subtract_quantities(recipe):
 
 
 recipe = [
-        "Zucchini Green (0.778 kg)",
-        "Broccoli (0.808 kg)",
-        "Banana Cavendish (2 units)",
-        "1 tbsp honey",
-        "1/2 cup ice cubes"
-    ]
+    "Zucchini Green (0.778 kg)",
+    "Broccoli (0.808 kg)",
+    "Banana Cavendish (2 units)",
+    "1 tbsp honey",
+    "1/2 cup ice cubes",
+]
 
 
 # test:
