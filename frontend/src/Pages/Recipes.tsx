@@ -93,8 +93,8 @@ const UserRecipesPage: React.FC = () => {
                         user_ID: userID,
                         // We can pass the entire array directly. The server must handle array query params.
                         // If needed, consider joining them into a string, e.g. ingredients: recipe.ingredients.join(",")
-                        ingredients: recipe.ingredients,
-                    },
+                        ingredients: JSON.stringify(recipe.ingredients),
+                    }
                 }
             );
             console.log(recipe.ingredients);
