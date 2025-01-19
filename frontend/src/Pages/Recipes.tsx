@@ -7,15 +7,17 @@ interface Recipe {
     ingredients: string[];
     steps: string[];
     requiresExtra: boolean;
+    // Updated macro fields as numbers (floats)
+    calories: number;
+    protein: number;
+    carbs: number;
+    fats: number;
 }
 
 const UserRecipesPage: React.FC = () => {
     const [recipes, setRecipes] = useState<Recipe[]>([]);
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
-
-    // We'll use this state to display any success or error messages
-    // when "Make" is clicked for a specific recipe
     const [makeMessage, setMakeMessage] = useState<string | null>(null);
 
     useEffect(() => {
@@ -28,9 +30,10 @@ const UserRecipesPage: React.FC = () => {
             }
 
             try {
-                const response = await axios.get("https://nwhacks25.onrender.com/generate_recipes", {
-                    params: { user_ID: userID },
-                });
+                const response = await axios.get(
+                    "https://nwhacks25.onrender.com/generate_recipes",
+                    { params: { user_ID: userID } }
+                );
 
                 let data: any;
                 // If backend returns stringified JSON, parse it
@@ -48,7 +51,19 @@ const UserRecipesPage: React.FC = () => {
                 }
 
                 if (data && data.recipes && Array.isArray(data.recipes)) {
-                    setRecipes(data.recipes);
+                    // Optional: Validate and ensure macros are numbers
+                    const validatedRecipes: Recipe[] = data.recipes.map((recipe: any) => ({
+                        name: recipe.name,
+                        ingredients: recipe.ingredients,
+                        steps: recipe.steps,
+                        requiresExtra: recipe.requiresExtra,
+                        calories: typeof recipe.calories === "number" ? recipe.calories : parseFloat(recipe.calories),
+                        protein: typeof recipe.protein === "number" ? recipe.protein : parseFloat(recipe.protein),
+                        carbs: typeof recipe.carbs === "number" ? recipe.carbs : parseFloat(recipe.carbs),
+                        fats: typeof recipe.fats === "number" ? recipe.fats : parseFloat(recipe.fats),
+                    }));
+                    console.log(data.recipes);
+                    setRecipes(validatedRecipes);
                 } else {
                     console.error("Unexpected API response structure:", data);
                     setRecipes([]);
@@ -69,11 +84,10 @@ const UserRecipesPage: React.FC = () => {
     };
 
     /**
-     * Sends a POST request to a dummy endpoint, passing user_ID and ingredients as query params.
-     * Replace "https://dummyapi.com/make" with your actual endpoint.
+     * Sends a POST request (with query params) to subtract ingredients from inventory, as an example.
+     * The server must handle 'ingredients' as JSON if needed.
      */
     const handleMake = async (recipe: Recipe) => {
-        // Clear any previous make-message
         setMakeMessage(null);
 
         const userID = localStorage.getItem("userId");
@@ -84,31 +98,22 @@ const UserRecipesPage: React.FC = () => {
         }
 
         try {
-            // We send a POST request with no body, but params in the config
             const response = await axios.post(
                 "https://nwhacks25.onrender.com/subtract",
                 null, // No request body
                 {
                     params: {
                         user_ID: userID,
-                        // We can pass the entire array directly. The server must handle array query params.
-                        // If needed, consider joining them into a string, e.g. ingredients: recipe.ingredients.join(",")
+                        // JSON-stringify the array of ingredients if server needs it in that format:
                         ingredients: JSON.stringify(recipe.ingredients),
-                    }
+                    },
                 }
             );
-            console.log(recipe.ingredients);
-            console.log("User ID" + userID);
             console.log("Make Recipe Response:", response.data);
             setMakeMessage(`Successfully made "${recipe.name}"!`);
         } catch (error) {
             console.error("Error making recipe:", error);
-
-            // Decide how best to show the user this error; for now, a simple message:
             setMakeMessage(`Failed to make "${recipe.name}". Please try again later.`);
-        } finally {
-            console.log(recipe.ingredients);
-            console.log("User ID" + userID);
         }
     };
 
@@ -124,7 +129,7 @@ const UserRecipesPage: React.FC = () => {
         <div className="user-recipes">
             <h1 className="user-recipes__title">Your Recipes</h1>
 
-            {/* Display a success/error message after "Make" is clicked */}
+            {/* Display any success/error message from "Make" action */}
             {makeMessage && <p className="make-message">{makeMessage}</p>}
 
             <ul className="user-recipes__list">
@@ -154,7 +159,15 @@ const UserRecipesPage: React.FC = () => {
                                         ))}
                                     </ol>
 
-                                    {/* "Make" button to post user_ID and the recipe's ingredients as query params */}
+                                    {/* Display macros */}
+                                    <h3>Macros:</h3>
+                                    <ul>
+                                        <li>Calories: {recipe.calories.toFixed(2)} kcal</li>
+                                        <li>Protein: {recipe.protein.toFixed(2)} g</li>
+                                        <li>Carbs: {recipe.carbs.toFixed(2)} g</li>
+                                        <li>Fats: {recipe.fats.toFixed(2)} g</li>
+                                    </ul>
+
                                     <button
                                         className="make-recipe-button"
                                         onClick={() => handleMake(recipe)}
