@@ -396,7 +396,7 @@ def generate_subtractions(recipe):
 @app.route("/subtract", methods=["POST"])
 def subtract_quantities():
     userid = request.args.get("user_ID")
-    recipe = json.loads(request.args.get("recipe"))
+    recipe = json.loads(request.args.get("ingredients"))
     print(recipe)
 
     to_updates = json.loads(generate_subtractions(recipe))
