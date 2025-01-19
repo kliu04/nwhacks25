@@ -1,0 +1,62 @@
+.upload-receipt {
+    padding: 2rem;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.upload-receipt__title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.upload-receipt__subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.upload-receipt__file-input {
+    margin-bottom: 1rem;
+}
+
+.upload-receipt__error {
+    color: red;
+    margin-top: 1rem;
+}
+
+.upload-receipt__success {
+    color: green;
+    margin-top: 1rem;
+}
+
+.upload-receipt__preview {
+    margin: 2rem 0;
+}
+
+.upload-receipt__preview img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.upload-receipt__submit-button {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #30ac4d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.upload-receipt__submit-button:hover {
+    background-color: #25913e;
+}
+
+.upload-receipt__next-link {
+    display: block;
+    margin-top: 1.5rem;
+    text-decoration: none;
+    color: #30ac4d;
+}

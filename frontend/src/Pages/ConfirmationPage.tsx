@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import "./ConfirmationPage.css"; // Import the updated CSS
 
 interface Item {
     id: number; // Unique identifier for items

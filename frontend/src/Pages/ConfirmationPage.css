@@ -1,0 +1,72 @@
+.confirmation-page {
+    padding: 2rem;
+    font-family: Arial, sans-serif;
+    background-color: #f9fefb;
+}
+
+.confirmation-page__title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.confirmation-page__list {
+    list-style: none;
+    padding: 0;
+}
+
+.confirmation-page__list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: #fff;
+    border: 1px solid #ddd;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+}
+
+.confirmation-page__edit-button,
+.confirmation-page__remove-button {
+    background-color: #30ac4d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.confirmation-page__edit-button:hover,
+.confirmation-page__remove-button:hover {
+    background-color: #25913e;
+}
+
+.confirmation-page__add-item {
+    margin-top: 2rem;
+    background: #f3f3f3;
+    padding: 1rem;
+    border-radius: 4px;
+}
+
+.confirmation-page__add-item input {
+    margin: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: calc(33% - 1rem);
+}
+
+.confirmation-page__add-item button {
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #30ac4d;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.confirmation-page__add-item button:hover {
+    background-color: #25913e;
+}

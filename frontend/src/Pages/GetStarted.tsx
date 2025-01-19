@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import "./GetStarted.css"; // Import the updated CSS
 
 const GetStarted: React.FC = () => {
     const commonPantryItems = [
