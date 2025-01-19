@@ -2,16 +2,11 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Inventory.css"; // Ensure the path is correct
 
-
 interface InventoryItem {
     item: string;
     expiry: string;
     amount: string;         // Displayed amount (e.g., "5" or "0.77 kg")
     amountNumeric: number;  // Numerical value for sorting
-    calories: number;      // New field
-    protein: number;       // New field
-    carbs: number;         // New field
-    fats: number;          // New field
 }
 
 const getExpiryClass = (expiry: string) => {
@@ -24,11 +19,11 @@ const getExpiryClass = (expiry: string) => {
     return "expiry-week";
 };
 
-type InventoryTuple = [string, string, number | null, number | null, number, number, number, number];
+type InventoryTuple = [string, string, number | null, number | null]; // Removed macronutrients
 
 const ViewInventory: React.FC = () => {
     const [inventory, setInventory] = useState<InventoryItem[]>([]);
-    const [sortBy, setSortBy] = useState<"item" | "amount" | "expiry" | "calories" | "protein" | "carbs" | "fats">("item");
+    const [sortBy, setSortBy] = useState<"item" | "amount" | "expiry">("item");
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -48,7 +43,7 @@ const ViewInventory: React.FC = () => {
             try {
                 // Make GET request with user_ID as a query parameter
                 const response = await axios.get("https://nwhacks25.onrender.com/inventory", {
-                    params: {user_ID: userID},
+                    params: { user_ID: userID },
                 });
 
                 console.log("API Response:", response.data);
@@ -74,22 +69,18 @@ const ViewInventory: React.FC = () => {
                 // Check if data is an array (array of tuples)
                 if (Array.isArray(data)) {
                     const transformedInventory: InventoryItem[] = data.map((tuple: any[], index: number) => {
-                        // Ensure each tuple has at least 8 elements: [item, expiry, quantity, weight, calories, protein, carbs, fats]
-                        if (tuple.length < 8) {
+                        // Ensure each tuple has at least 4 elements: [item, expiry, quantity, weight]
+                        if (tuple.length < 4) {
                             console.warn(`Tuple at index ${index} is incomplete:`, tuple);
                             return {
                                 item: "Unknown Item",
                                 expiry: "Unknown",
                                 amount: "N/A",
                                 amountNumeric: 0,
-                                calories: 0,
-                                protein: 0,
-                                carbs: 0,
-                                fats: 0,
                             };
                         }
 
-                        const [item, expiry, quantity, weight, calories, protein, carbs, fats] = tuple as InventoryTuple;
+                        const [item, expiry, quantity, weight] = tuple as InventoryTuple;
 
                         let amount = "N/A";
                         let amountNumeric = 0;
@@ -107,10 +98,6 @@ const ViewInventory: React.FC = () => {
                             expiry: String(expiry),
                             amount,
                             amountNumeric,
-                            calories: typeof calories === "number" ? calories : parseFloat(calories),
-                            protein: typeof protein === "number" ? protein : parseFloat(protein),
-                            carbs: typeof carbs === "number" ? carbs : parseFloat(carbs),
-                            fats: typeof fats === "number" ? fats : parseFloat(fats),
                         };
                     });
 
@@ -119,21 +106,17 @@ const ViewInventory: React.FC = () => {
                 // Handle case where data is wrapped inside an object (e.g., { inventory: [...] })
                 else if (data.inventory && Array.isArray(data.inventory)) {
                     const transformedInventory: InventoryItem[] = data.inventory.map((tuple: any[], index: number) => {
-                        if (tuple.length < 8) {
+                        if (tuple.length < 4) {
                             console.warn(`Tuple at index ${index} is incomplete:`, tuple);
                             return {
                                 item: "Unknown Item",
                                 expiry: "Unknown",
                                 amount: "N/A",
                                 amountNumeric: 0,
-                                calories: 0,
-                                protein: 0,
-                                carbs: 0,
-                                fats: 0,
                             };
                         }
 
-                        const [item, expiry, quantity, weight, calories, protein, carbs, fats] = tuple as InventoryTuple;
+                        const [item, expiry, quantity, weight] = tuple as InventoryTuple;
 
                         let amount = "N/A";
                         let amountNumeric = 0;
@@ -151,15 +134,12 @@ const ViewInventory: React.FC = () => {
                             expiry: String(expiry),
                             amount,
                             amountNumeric,
-                            calories: typeof calories === "number" ? calories : parseFloat(calories),
-                            protein: typeof protein === "number" ? protein : parseFloat(protein),
-                            carbs: typeof carbs === "number" ? carbs : parseFloat(carbs),
-                            fats: typeof fats === "number" ? fats : parseFloat(fats),
                         };
                     });
 
                     setInventory(transformedInventory);
-                } else {
+                }
+                else {
                     console.error("Unexpected API response structure:", data);
                     setError("Unexpected response structure from the server.");
                     setInventory([]);
@@ -177,25 +157,16 @@ const ViewInventory: React.FC = () => {
         fetchInventory();
     }, []);
 
-    // Sorting function updated to handle amount and macros
-    const handleSort = (criteria: "item" | "amount" | "expiry" | "calories" | "protein" | "carbs" | "fats") => {
+    // Sorting function updated to handle only item, amount, and expiry
+    const handleSort = (criteria: "item" | "amount" | "expiry") => {
         const sortedInventory = [...inventory].sort((a, b) => {
             switch (criteria) {
                 case "amount":
                     return a.amountNumeric - b.amountNumeric;
-                case "expiry": {
-                    const aDate = new Date(a.expiry).getTime();
+                case "expiry":
+                    { const aDate = new Date(a.expiry).getTime();
                     const bDate = new Date(b.expiry).getTime();
-                    return aDate - bDate;
-                }
-                case "calories":
-                    return a.calories - b.calories;
-                case "protein":
-                    return a.protein - b.protein;
-                case "carbs":
-                    return a.carbs - b.carbs;
-                case "fats":
-                    return a.fats - b.fats;
+                    return aDate - bDate; }
                 case "item":
                 default:
                     return a.item.localeCompare(b.item);
@@ -235,16 +206,12 @@ const ViewInventory: React.FC = () => {
                     className="view-inventory__dropdown"
                     value={sortBy}
                     onChange={(e) =>
-                        handleSort(e.target.value as "item" | "amount" | "expiry" | "calories" | "protein" | "carbs" | "fats")
+                        handleSort(e.target.value as "item" | "amount" | "expiry")
                     }
                 >
                     <option value="item">Item</option>
                     <option value="amount">Amount</option>
                     <option value="expiry">Expiry</option>
-                    <option value="calories">Calories</option>
-                    <option value="protein">Protein</option>
-                    <option value="carbs">Carbs</option>
-                    <option value="fats">Fats</option>
                 </select>
             </div>
 
@@ -256,10 +223,6 @@ const ViewInventory: React.FC = () => {
                         <th className="view-inventory__header-cell">Item Name</th>
                         <th className="view-inventory__header-cell">Quantity</th>
                         <th className="view-inventory__header-cell">Expiry Date</th>
-                        <th className="view-inventory__header-cell">Calories</th>
-                        <th className="view-inventory__header-cell">Protein (g)</th>
-                        <th className="view-inventory__header-cell">Carbs (g)</th>
-                        <th className="view-inventory__header-cell">Fats (g)</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -267,16 +230,9 @@ const ViewInventory: React.FC = () => {
                         <tr key={index} className="view-inventory__row">
                             <td className="view-inventory__cell" data-label="Item Name">{invItem.item}</td>
                             <td className="view-inventory__cell" data-label="Quantity">{invItem.amount}</td>
-                            <td className={`view-inventory__cell ${getExpiryClass(invItem.expiry)}`}
-                                data-label="Expiry Date">
+                            <td className={`view-inventory__cell ${getExpiryClass(invItem.expiry)}`} data-label="Expiry Date">
                                 {invItem.expiry}
                             </td>
-                            <td className="view-inventory__cell"
-                                data-label="Calories">{invItem.calories.toFixed(2)}</td>
-                            <td className="view-inventory__cell"
-                                data-label="Protein (g)">{invItem.protein.toFixed(2)}</td>
-                            <td className="view-inventory__cell" data-label="Carbs (g)">{invItem.carbs.toFixed(2)}</td>
-                            <td className="view-inventory__cell" data-label="Fats (g)">{invItem.fats.toFixed(2)}</td>
                         </tr>
                     ))}
                     </tbody>
@@ -286,6 +242,6 @@ const ViewInventory: React.FC = () => {
             )}
         </div>
     );
-}
+};
 
-    export default ViewInventory;
+export default ViewInventory; // Ensure this matches your export statement
