@@ -280,7 +280,8 @@ def generate_recipes():
                     prioritizing using those with the earliest expiry time (2nd index), and with as few
                     ingredients that are not in the list as possible. Use exactly the wording we have in the array, 
                     and do not use more than what is given (either weight which is the last index or quantity which is the
-                    3rd index). Input the exact number of ingredients used or weight if applicable in kg.""",
+                    3rd index). Input the exact number of ingredients used or weight if applicable in kg. Also you must generate the 
+                    calories, protein, carbs, and fat of the recipe based off the ingredients.""",
             },
         ],
         response_format={
@@ -314,12 +315,32 @@ def generate_recipes():
                                         "type": "boolean",
                                         "description": "If more ingredients than provided are needed for the recipe.",
                                     },
+                                    "calories": {
+                                        "type": "number",
+                                        "description": "The total calories in the recipe. (kcal)",
+                                    },
+                                    "protein": {
+                                        "type": "number",
+                                        "description": "The total protein in the recipe. (g)",
+                                    },
+                                    "carbs": {
+                                        "type": "number",
+                                        "description": "The total carbs in the recipe. (g)",
+                                    },
+                                    "fat": {
+                                        "type": "number",
+                                        "description": "The total fat in the recipe. (g)",
+                                    },
                                 },
                                 "required": [
                                     "name",
                                     "ingredients",
                                     "steps",
                                     "requiresExtra",
+                                    "calories",
+                                    "protein",
+                                    "carbs",
+                                    "fat",
                                 ],
                                 "additionalProperties": False,
                             },
