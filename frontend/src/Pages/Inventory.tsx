@@ -234,8 +234,9 @@ const ViewInventory: React.FC = () => {
                         <tr key={index} className="view-inventory__row">
                             <td className="view-inventory__cell">{invItem.item}</td>
                             <td className="view-inventory__cell">{invItem.amount}</td>
-                            <td className="view-inventory__cell${getExpiryClass(
-                                invItem.expiry )}">{invItem.expiry}</td>
+                            {/* <td className="view-inventory__cell${getExpiryClass(
+                                invItem.expiry )}">{invItem.expiry}</td> */}
+                                <td className={"view-inventory__cell " + getExpiryClass(invItem.expiry)}>{invItem.expiry} <img src={expirationIcon} alt="test" /></td>
                                               
                         </tr>
                     ))}
