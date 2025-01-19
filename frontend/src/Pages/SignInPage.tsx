@@ -6,14 +6,14 @@ import axios, { AxiosError } from "axios";
 import "./SignIn.css"; // Import the updated CSS
 
 interface DecodedToken {
-    name: string;
-    email: string;
-    sub: string; // Unique user identifier
+  name: string;
+  email: string;
+  sub: string;
 }
 
 const SignIn: React.FC = () => {
-    const clientId = "531282944371-bfmopt7kqn3i3n5lboqun1ktmc10kj8b.apps.googleusercontent.com";
-    const navigate = useNavigate();
+  const clientId = "531282944371-bfmopt7kqn3i3n5lboqun1ktmc10kj8b.apps.googleusercontent.com";
+  const navigate = useNavigate();
 
     const handleSuccess = async (response: CredentialResponse) => {
         if (response.credential) {
@@ -75,31 +75,31 @@ const SignIn: React.FC = () => {
         }
     };
 
-    const handleError = () => {
-        console.error("Login Failed");
-        alert("Google Sign-In failed. Please try again.");
-    };
+  const handleError = () => {
+    console.error("Login Failed");
+    alert("Google Sign-In failed. Please try again.");
+  };
 
-    const handleLogout = () => {
-        googleLogout();
-        localStorage.removeItem("userId"); // Remove the user identifier from local storage
-        alert("You have logged out.");
-    };
+  const handleLogout = () => {
+    googleLogout();
+    localStorage.removeItem("userId");
+    alert("You have logged out.");
+  };
 
-    return (
-        <GoogleOAuthProvider clientId={clientId}>
-            <div className="sign-in">
-                <h1 className="sign-in__title">Sign In</h1>
-                <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
-                <button className="sign-in__logout-button" onClick={handleLogout}>
-                    Logout
-                </button>
-                <Link to="/getstarted" className="sign-in__continue-link">
-                    Continue
-                </Link>
-            </div>
-        </GoogleOAuthProvider>
-    );
+  return (
+    <GoogleOAuthProvider clientId={clientId}>
+      <div className="sign-in">
+        <h1 className="sign-in__title">Sign In</h1>
+        <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
+        <button className="sign-in__logout-button" onClick={handleLogout}>
+          Logout
+        </button>
+        <Link to="/getstarted" className="sign-in__continue-link">
+          Continue
+        </Link>
+      </div>
+    </GoogleOAuthProvider>
+  );
 };
 
 export default SignIn;

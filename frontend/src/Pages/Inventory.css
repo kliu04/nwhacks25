@@ -1,0 +1,108 @@
+/* General Loading State */
+.loading {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #555;
+  }
+  
+  /* Main Container Styling */
+  .view-inventory {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+    font-family: Arial, sans-serif;
+  }
+  
+  .view-inventory__title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    color: #333;
+  }
+  
+  /* Error Styling */
+  .view-inventory__error {
+    color: #d9534f; /* Bootstrap's "danger" color */
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding: 0.5rem;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    background-color: #f8d7da;
+  }
+  
+  /* Sorting Controls */
+  .view-inventory__controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .view-inventory__label {
+    margin-right: 0.5rem;
+    font-weight: bold;
+    color: #555;
+  }
+  
+  .view-inventory__dropdown {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    color: #333;
+  }
+  
+  /* Table Styling */
+  .view-inventory__table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .view-inventory__header-row {
+    background-color: #4CAF50; /* Green header */
+    color: white;
+  }
+  
+  .view-inventory__header-cell {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 2px solid #ddd;
+  }
+  
+  .view-inventory__row:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .view-inventory__row:hover {
+    background-color: #f1f1f1; /* Light gray hover effect */
+  }
+  
+  .view-inventory__cell {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    color: #555;
+  }
+  
+  /* Responsive Design */
+  @media screen and (max-width: 600px) {
+    .view-inventory__table {
+      font-size: 0.9rem;
+    }
+  
+    .view-inventory__controls {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  
+    .view-inventory__label {
+      margin-right: 0;
+    }
+  }
+  
