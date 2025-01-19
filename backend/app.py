@@ -244,5 +244,31 @@ def get_all_items():
     cursor.close()
     connection.close()
 
-    print(items)
+   
     return items  # Return the fetched items
+
+
+
+def register_login_user(userID):
+    # Connect to SQLite database (or create if it doesn't exist)
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+
+    # Check if the user already exists
+    cursor.execute('SELECT * FROM users WHERE user_id = ?', (userID,))
+    existing_user = cursor.fetchone()
+
+    if existing_user:
+        print(f"User with id {userID} already exists.")
+    else:
+        # Insert the new user into the database
+        cursor.execute('INSERT INTO users (user_id) VALUES (?)', (userID,))
+        conn.commit()
+        print(f"User with id {userID} has been successfully registered.")
+    
+    # Close the connection
+    conn.close()
+
+#test
+#register_login_user('31415926')
+ 
