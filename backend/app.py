@@ -1,10 +1,13 @@
 from openai import OpenAI
 from flask import Flask, request, jsonify
 from datetime import datetime
+from flask_cors import CORS
 import sqlite3
 import os
 
+
 app = Flask(__name__)
+CORS(app)
 client = OpenAI()
 
 
@@ -271,7 +274,7 @@ if __name__ == "__main__":
 
 
 @app.route("/register", methods=["POST"])
-def register__user():
+def register_user():
     user_ID = request.args.get("user_ID")
     # Connect to SQLite database (or create if it doesn't exist)
     conn = sqlite3.connect("database.db")
