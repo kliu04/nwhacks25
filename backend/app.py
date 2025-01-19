@@ -270,22 +270,24 @@ if __name__ == "__main__":
     app.run(debug=True, port=5000)
 
 
-def register_login_user(userID):
+@app.route("/login", methods=["POST"])
+def register_login_user():
+    user_ID = request.args.get("user_ID")
     # Connect to SQLite database (or create if it doesn't exist)
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
     # Check if the user already exists
-    cursor.execute("SELECT * FROM users WHERE user_id = ?", (userID,))
+    cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_ID,))
     existing_user = cursor.fetchone()
 
     if existing_user:
-        print(f"User with id {userID} already exists.")
+        print(f"User with id {user_ID} already exists.")
     else:
         # Insert the new user into the database
-        cursor.execute("INSERT INTO users (user_id) VALUES (?)", (userID,))
+        cursor.execute("INSERT INTO users (user_id) VALUES (?)", (user_ID,))
         conn.commit()
-        print(f"User with id {userID} has been successfully registered.")
+        print(f"User with id {user_ID} has been successfully registered.")
 
     # Close the connection
     conn.close()
