@@ -215,7 +215,17 @@ def insert_data(receipt, user_ID):
         INSERT INTO items (user_id, name, expiry_date, quantity, weight, calories, protein, carbs, fat)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
-        data = (user_id, item_name, expiry_date, quantity, weight, calories, protei, carbs, fat)
+        data = (
+            user_id,
+            item_name,
+            expiry_date,
+            quantity,
+            weight,
+            calories,
+            protein,
+            carbs,
+            fat,
+        )
 
         # Execute query and commit
         cursor.execute(insert_query, data)
