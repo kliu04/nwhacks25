@@ -283,6 +283,8 @@ def register_user():
     existing_user = cursor.fetchone()
 
     if existing_user:
+        cursor.close()
+        conn.close()
         return (
             jsonify({"error": f"User {user_ID} already exists."}),
             400,
@@ -292,14 +294,14 @@ def register_user():
         # Insert the new user into the database
         cursor.execute("INSERT INTO users (user_id) VALUES (?)", (user_ID,))
         conn.commit()
+        cursor.close()
+        conn.close()
         print(f"User with id {user_ID} has been successfully registered.")
         return (
             jsonify({"message": f"User {user_ID} has been successfully registered."}),
             200,
         )
-
     # Close the connection
-    conn.close()
 
 
 # test
