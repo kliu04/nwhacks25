@@ -334,6 +334,162 @@ def register_user():
 
     # Close the connection
 
+# takes list of ingredients
+def generate_subtractions(recipe):
+    # ingredients_raw = recipe["ingredients"]
+    ingredients_raw = recipe
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "developer", "content": "You are a helpful assistant."},
+            {
+                "role": "user",
+                "content": f"""
+                    Generate a list of tuples based on these ingredients: {ingredients_raw}.
+                    Each tuple consists of two elements: the ingredient name as a string and the ingredient amount as a number (can be with decimals).
+                """,
+            },
+        ],
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "ingredient_tuples",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "ingredient_tuples": {
+                            "type": "array",  # Use an array of objects
+                            "description": "List of ingredient tuples.",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "The name of the ingredient."
+                                    },
+                                    "amount": {
+                                        "type": "number",
+                                        "description": "The amount of the ingredient."
+                                    }
+                                },
+                                "required": ["name", "amount"],
+                                "additionalProperties": False
+                            }
+                        }
+                    },
+                    "required": ["ingredient_tuples"],
+                    "additionalProperties": False
+                }
+            }
+        },
+    )
+
+    # print(response.choices[0].message.content)
+
+
+    return response.choices[0].message.content
+
+# takes list of ingredients
+@app.route("/subtract", methods=["POST"])
+def subtract_quantities(recipe):
+    userid = request.args.get("user_ID")
+
+    # stub
+    # userid = 1
+
+    to_updates = json.loads(generate_subtractions(recipe))
+    #print(to_updates)
+    to_updates = to_updates["ingredient_tuples"]
+
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+
+    
+
+    # Fetch all item names for the user
+    select_query = """
+        SELECT name
+        FROM items 
+        WHERE user_id = ?
+    """
+    data = (userid,)
+    cursor.execute(select_query, data)
+    items = cursor.fetchall()
+
+    #print(items)
+    for update in to_updates:
+        quant = True
+        if update['name'] in [item[0] for item in items]:
+             # Fetch all item names for the user
+            select_quant_query = """
+                SELECT quantity
+                FROM items 
+                WHERE user_id = ? AND name = ?
+            """
+            data = (userid,update['name'], )
+            cursor.execute(select_quant_query, data)
+            quant_result = cursor.fetchall()
+            if quant_result[0][0] is None:
+                quant = False
+                select_weight_query = """
+                    SELECT weight
+                    FROM items 
+                    WHERE user_id = ? AND name = ?
+                """
+                data = (userid,update['name'], )
+                cursor.execute(select_weight_query, data)
+                weight_result = cursor.fetchall()
+            if quant:
+                new_amount = quant_result[0][0] - update['amount']
+                update_query =  """
+                    UPDATE items
+                    SET quantity = ?
+                    WHERE user_id = ? AND name = ?
+                """
+
+            else:
+                new_amount = weight_result[0][0] - update['amount']
+                update_query =  """
+                    UPDATE items
+                    SET weight = ?
+                    WHERE user_id = ? AND name = ?
+                """
+            
+            print(update['name'])
+            print(new_amount)
+            data = (new_amount, userid,update['name'], )
+            cursor.execute(update_query, data)
+
+            # remove the amount if it's amount <= 0 
+            if new_amount <= 0:
+                #new_amount = 0
+                delete_query = """
+                    DELETE FROM items
+                    WHERE user_id = ? AND name = ?
+                """
+                data = (userid,update['name'], )
+                cursor.execute(delete_query, data)
+
+            connection.commit()
+    
+
+    # Close connection
+    cursor.close()
+    connection.close()
+
+
+recipe = [
+        "Zucchini Green (0.778 kg)",
+        "Broccoli (0.808 kg)",
+        "Banana Cavendish (2 units)",
+        "1 tbsp honey",
+        "1/2 cup ice cubes"
+    ]
+
+
+# test:
+subtract_quantities(recipe)
+
 
 # test
 # register_login_user('31415926')
