@@ -1,15 +1,15 @@
 from openai import OpenAI
 from flask import Flask, request, jsonify
 from datetime import datetime
-
-
 import sqlite3
-
-
 
 app = Flask(__name__)
 client = OpenAI()
 
+
+
+# stub
+current_user_id = 1
 
 
 @app.route("/upload", methods=["POST"])
@@ -100,7 +100,7 @@ current_user_id=1
 
 def insert_data(receipt, current_user):
     # Establish connection to SQLite database
-    connection = sqlite3.connect('database.db')  # Make sure the correct path is provided to your SQLite database file
+    connection = sqlite3.connect("database.db")
     cursor = connection.cursor()
 
     user_id = current_user_id
@@ -122,7 +122,7 @@ def insert_data(receipt, current_user):
         if "kg" in item["amount"]:  # Assuming 'amount' is a string in the item
             weight = float(item["amount"].replace("kg", "").strip())
         else:
-            quantity = int(float(item['amount']))  # Ensure it converts properly
+            quantity = int(float(item["amount"]))  # Ensure it converts properly
 
         # Insert query
         insert_query = """
@@ -142,11 +142,86 @@ def insert_data(receipt, current_user):
     connection.close()
 
 
+def generate_recipes(current_user):
+    data = [
+        ("Zucchini Green", "2023-11-08", 5, None),
+        ("Banana Cavendish", "2023-11-03", 7, None),
+        ("Potatoes Brushed", "2023-11-11", None, 1.328),
+        ("Broccoli", "2023-11-06", 3, None),
+    ]
+    # need to sort the array in order of increasing expiry date
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "developer", "content": "You are a helpful assistant."},
+            {
+                "role": "user",
+                "content": f"""
+                    Generate recipes based on these ingredients: {data}, 
+                    prioritizing using those with the soonest expiry time, and with as few
+                    ingredients that are not in the list as possible.""",
+            },
+        ],
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "recipes",
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "recipes": {
+                            "type": "array",
+                            "description": "List of recipes.",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "The name of the dish.",
+                                    },
+                                    "ingredients": {
+                                        "type": "array",
+                                        "items": {"type": "string"},
+                                        "description": "The list of ingredients for the dish.",
+                                    },
+                                    "steps": {
+                                        "type": "array",
+                                        "items": {"type": "string"},
+                                        "description": "The list of steps for the dish.",
+                                    },
+                                    "requiresExtra": {
+                                        "type": "boolean",
+                                        "description": "If more ingredients than provided are needed for the recipe.",
+                                    },
+                                },
+                                "required": [
+                                    "name",
+                                    "ingredients",
+                                    "steps",
+                                    "requiresExtra",
+                                ],
+                                "additionalProperties": False,
+                            },
+                        }
+                    },
+                    "required": ["recipes"],
+                    "additionalProperties": False,
+                },
+                "strict": True,
+            },
+        },
+    )
+    print(response.choices[0].message.content)
+
+
+if __name__ == "__main__":
+    generate_recipes(1)
+    # app.run(debug=True, port=5000)
 
 
 def get_all_items():
     # SQLite connection (provide the path to your SQLite database file)
-    connection = sqlite3.connect('database.db')
+    connection = sqlite3.connect("database.db")
     cursor = connection.cursor()
 
     # Assuming current_user.id is available
@@ -171,5 +246,3 @@ def get_all_items():
 
     print(items)
     return items  # Return the fetched items
-
-
