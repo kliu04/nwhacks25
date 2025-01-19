@@ -10,13 +10,13 @@
 }
 
 .sign-in__logout-button {
-    margin-top: 1rem;
+    margin-top: 2rem;
+    display: inline-block;
     padding: 0.75rem 1.5rem;
     background-color: #30ac4d;
     color: white;
-    border: none;
+    text-decoration: none;
     border-radius: 4px;
-    cursor: pointer;
 }
 
 .sign-in__continue-link {
@@ -27,7 +27,6 @@
     color: white;
     text-decoration: none;
     border-radius: 4px;
-    transition: background-color 0.2s;
 }
 
 .sign-in__continue-link:hover {
