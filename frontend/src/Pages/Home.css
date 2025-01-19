@@ -6,6 +6,44 @@
     margin: 2rem 0;
 }
 
+
+/* FAQ Section */
+.faq {
+    margin-top: 2rem;
+    padding: 2rem;
+    text-align: left;
+    background-color: #f9f9f9; /* Light background for FAQ section */
+    border-radius: 8px;
+}
+
+.faq h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: #333;
+}
+
+.faq-item {
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 1rem;
+}
+
+.faq-item h3 {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #4caf50; /* Green heading for FAQ */
+}
+
+.faq-item p {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.5;
+    margin: 0;
+}
+
+
 .home {
     display: flex;
     flex-direction: column; /* Stack header, hero, and other sections vertically */
@@ -57,7 +95,7 @@
 
 .feature {
     text-align: center;
-    width: 500px; /* Increased width for larger images */
+    width: 1000px; /* Increased width for larger images */
 }
 
 .feature__image {
@@ -78,3 +116,51 @@
     font-size: 1rem;
     color: #555;
 }
+
+
+/* FAQ Section */
+.faq {
+    margin-top: 2rem;
+    padding: 2rem;
+    text-align: left;
+    background-color: #f9f9f9; /* Light background for FAQ section */
+    border-radius: 8px;
+    width: 90%; /* Set width to 90% of the viewport */
+    max-width: 1200px; /* Maximum width constraint */
+    margin-left: auto;
+    margin-right: auto; /* Center the FAQ section */
+}
+
+.faq h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: #333;
+}
+
+.faq-item {
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 1rem;
+}
+
+.faq-item h3 {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #4caf50; /* Green heading for FAQ */
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.faq-item h3:hover {
+    color: #25913e; /* Slightly darker green on hover */
+}
+
+.faq-item p {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.5;
+    margin: 0;
+}
+

@@ -4,6 +4,13 @@
     font-family: Arial, sans-serif;
 }
 
+body {
+    background: linear-gradient(to bottom right, #f7fafc, #e2e8f0); /* Subtle gradient */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
 .sign-in__title {
     font-size: 2rem;
     margin-bottom: 2rem;
