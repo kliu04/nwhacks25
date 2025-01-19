@@ -12,8 +12,27 @@ client = OpenAI()
 current_user_id = 1
 
 
+@app.route("/inventory", methods=["GET", "POST"])
+def get_inventory():
+    if request.method == "GET":
+        try:
+            current_user = request.args.get("user_ID")
+            items = get_all_items(current_user)
+            return jsonify(items), 200
+        except Exception as e:
+            return ({"error": "Cannot get inventory"}), 400
+    # POST
+    try:
+        current_user = request.args.get("user_ID")
+        items = request.args.get("items")
+        insert_data(items, current_user)
+        return ({"message": "Items set successfully"}), 200
+    except Exception as e:
+        return ({"error:" "Cannot set inventory"}), 400
+
+
 @app.route("/receipt", methods=["POST"])
-def upload_base64_image():
+def upload_receipt():
     data = request.form.get("image")
 
     if not data or "image" not in data:
@@ -85,6 +104,8 @@ def upload_base64_image():
             },
         )
         print(response.choices[0].message.content)
+
+        insert_data(response.choices[0].message.content["items"], 1)
         return (
             jsonify({"message": "Image uploaded successfully"}),
             200,
@@ -99,7 +120,7 @@ def insert_data(receipt, current_user):
     connection = sqlite3.connect("database.db")
     cursor = connection.cursor()
 
-    user_id = current_user_id
+    user_id = current_user
 
     receipt = receipt["items"]
 
@@ -149,7 +170,7 @@ def get_all_items(current_user):
     cursor = connection.cursor()
 
     # Assuming current_user.id is available
-    userid = current_user_id
+    userid = current_user
 
     # Corrected SQL Query
     select_query = """
@@ -245,5 +266,4 @@ def generate_recipes(current_user):
 
 # get recipes, inventory, set inventory
 if __name__ == "__main__":
-    generate_recipes(1)
-    # app.run(debug=True, port=5000)
+    app.run(debug=True, port=5000)
