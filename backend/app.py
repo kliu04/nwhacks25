@@ -108,7 +108,7 @@ def upload_receipt():
         )
         print(response.choices[0].message.content)
 
-        insert_data(response.choices[0].message.content["items"], 1)
+        # insert_data(response.choices[0].message.content[], 1)
         return (
             jsonify({"message": "Image uploaded successfully"}),
             200,
@@ -266,6 +266,7 @@ def generate_recipes():
         },
     )
     print(response.choices[0].message.content)
+    return jsonify(response.choices[0].message.content), 200
 
 
 # get recipes, inventory, set inventory
