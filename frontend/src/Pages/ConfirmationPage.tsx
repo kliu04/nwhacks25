@@ -110,7 +110,7 @@ const ConfirmationPage: React.FC = () => {
                             onClick={() =>
                                 handleUpdateItem(item.id, {
                                     name: prompt("Enter new name:", item.name) || item.name,
-                                    amount: prompt("Enter new quantity:", item.amount.toString()) || item.amount,
+                                    amount: prompt("Enter new quantity:", item.amount) || item.amount,
                                     expiry: prompt("Enter new expiry date (YYYY-MM-DD):", item.expiry) || item.expiry,
                                 })
                             }
