@@ -272,6 +272,9 @@ def get_all_items(user_ID):
     return items  # Return the fetched items
 
 
+# dummy commit
+
+
 @app.route("/generate_recipes", methods=["GET"])
 def generate_recipes():
     user_ID = request.args.get("user_ID")
