@@ -1,25 +1,76 @@
-import React, { useState } from "react";
-import {Link} from "react-router-dom";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 interface Item {
     id: number; // Unique identifier for items
     name: string;
-    quantity: number;
-    expiry: string; // Use a string for placeholder; ideally, this would be a Date type.
+    amount: string;
+    expiry: string;
 }
 
 const ConfirmationPage: React.FC = () => {
     // Placeholder for parsed receipt data
-    const [items, setItems] = useState<Item[]>([
-        { id: 1, name: "Milk", quantity: 1, expiry: "2025-01-01" },
-        { id: 2, name: "Eggs", quantity: 12, expiry: "2025-01-10" },
-        { id: 3, name: "Bread", quantity: 2, expiry: "2025-01-15" },
-    ]);
+    const [items, setItems] = useState<Item[]>([]);
+
+    useEffect(() => {
+        fetchItems();
+    }, []);
+
+    const pushItems = async () => {
+        const userID = localStorage.getItem("userId");
+        try {
+            console.log(JSON.stringify(items));
+            await axios.post(
+                "http://127.0.0.1:5000/inventory",
+                null, // Empty body
+                {
+                    params: {
+                        user_ID: "1", // Send user_ID as a query parameter
+                        items: JSON.stringify(items)
+                    },
+                }
+            );
+
+        } catch (e) {
+
+        }
+
+    }
+
+    const fetchItems = async () => {
+        const userID = localStorage.getItem("userId");
+        try {
+            const response = await axios.get("https://nwhacks25.onrender.com/inventory", {
+                params: { user_ID: "1" },
+            });
+
+            console.log(response);
+
+            if (Array.isArray(response.data)) {
+                setItems(response.data.map((item) => {
+                    return {
+                        id: Math.random(),
+                        name: item[0],
+                        amount: item[2] || item[3],
+                        expiry: item[1]
+
+                    }
+                }
+                ))
+            }
+            else {
+                console.log("Bad response");
+            }
+        } catch (e) {
+            console.log("Bad request");
+        }
+    };
 
     const [newItem, setNewItem] = useState<Item>({
         id: Date.now(),
         name: "",
-        quantity: 1,
+        amount: "",
         expiry: "",
     });
 
@@ -27,7 +78,7 @@ const ConfirmationPage: React.FC = () => {
     const handleAddItem = () => {
         if (newItem.name && newItem.expiry) {
             setItems((prev) => [...prev, newItem]);
-            setNewItem({ id: Date.now(), name: "", quantity: 1, expiry: "" });
+            setNewItem({ id: Date.now(), name: "", amount: "", expiry: "" });
         } else {
             alert("Please enter valid item details.");
         }
@@ -51,15 +102,15 @@ const ConfirmationPage: React.FC = () => {
             <ul className="confirmation-page__list">
                 {items.map((item) => (
                     <li key={item.id} className="confirmation-page__list-item">
-            <span>
-              {item.name} - {item.quantity} (Expires: {item.expiry})
-            </span>
+                        <span>
+                            {item.name} - {item.amount} (Expires: {item.expiry})
+                        </span>
                         <button
                             className="confirmation-page__edit-button"
                             onClick={() =>
                                 handleUpdateItem(item.id, {
                                     name: prompt("Enter new name:", item.name) || item.name,
-                                    quantity: parseInt(prompt("Enter new quantity:", item.quantity.toString()) || item.quantity.toString(), 10),
+                                    amount: prompt("Enter new quantity:", item.amount.toString()) || item.amount,
                                     expiry: prompt("Enter new expiry date (YYYY-MM-DD):", item.expiry) || item.expiry,
                                 })
                             }
@@ -84,11 +135,11 @@ const ConfirmationPage: React.FC = () => {
                     onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
                 />
                 <input
-                    type="number"
-                    placeholder="Quantity"
-                    value={newItem.quantity}
+                    type="text"
+                    placeholder="Amount (number or kg)"
+                    value={newItem.amount}
                     onChange={(e) =>
-                        setNewItem({ ...newItem, quantity: parseInt(e.target.value, 10) })
+                        setNewItem({ ...newItem, amount: e.target.value })
                     }
                 />
                 <input
@@ -98,7 +149,7 @@ const ConfirmationPage: React.FC = () => {
                 />
                 <button onClick={handleAddItem}>Add Item</button>
             </div>
-            <Link to="/">
+            <Link to="/" onClick={pushItems}>
                 Finish and Go Home
             </Link>
         </div>
