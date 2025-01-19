@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import "./Recipes.css"; // Import the updated CSS
 
 interface Recipe {
