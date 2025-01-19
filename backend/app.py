@@ -405,9 +405,6 @@ def subtract_quantities():
     userid = request.args.get("user_ID")
     recipe = request.args.get("recipe")
 
-    # stub
-    # userid = 1
-
     to_updates = json.loads(generate_subtractions(recipe))
     # print(to_updates)
     to_updates = to_updates["ingredient_tuples"]
@@ -497,6 +494,11 @@ def subtract_quantities():
     # Close connection
     cursor.close()
     connection.close()
+
+    return (
+        jsonify({"message": f"Deleted ingredients from recipe."}),
+        200,
+    )
 
 
 if __name__ == "__main__":
