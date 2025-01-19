@@ -130,7 +130,6 @@ def upload_receipt():
                 },
             },
         )
-        print(response.choices[0].message.content)
         # hacky
         insert_data(json.loads(response.choices[0].message.content)["items"], user_ID)
         return (
@@ -161,7 +160,6 @@ def insert_data(receipt, user_ID):
     user_id = user_ID
 
     for item in receipt:
-        print(type(item))
         # Data to insert
         item_name = item["name"]
         expiry_date_str = item[
@@ -228,7 +226,6 @@ def get_all_items(user_ID):
 def generate_recipes():
     user_ID = request.args.get("user_ID")
     data = get_all_items(user_ID)
-    print(data)
     # [(name, amount)]
     # need to sort the array in order of increasing expiry date
     response = client.chat.completions.create(
@@ -294,7 +291,6 @@ def generate_recipes():
             },
         },
     )
-    print(response.choices[0].message.content)
     return jsonify(response.choices[0].message.content), 200
 
 
@@ -326,7 +322,6 @@ def register_user():
             conn.commit()
             cursor.close()
             conn.close()
-            print(f"User with id {user_ID} has been successfully registered.")
             return (
                 jsonify(
                     {"message": f"User {user_ID} has been successfully registered."}
@@ -394,8 +389,6 @@ def generate_subtractions(recipe):
         },
     )
 
-    # print(response.choices[0].message.content)
-
     return response.choices[0].message.content
 
 
@@ -404,9 +397,9 @@ def generate_subtractions(recipe):
 def subtract_quantities():
     userid = request.args.get("user_ID")
     recipe = request.args.get("recipe")
+    print(recipe)
 
     to_updates = json.loads(generate_subtractions(recipe))
-    # print(to_updates)
     to_updates = to_updates["ingredient_tuples"]
 
     connection = sqlite3.connect("database.db")
@@ -422,7 +415,6 @@ def subtract_quantities():
     cursor.execute(select_query, data)
     items = cursor.fetchall()
 
-    # print(items)
     for update in to_updates:
         quant = True
         if update["name"] in [item[0] for item in items]:
@@ -467,8 +459,6 @@ def subtract_quantities():
                     WHERE user_id = ? AND name = ?
                 """
 
-            print(update["name"])
-            print(new_amount)
             data = (
                 new_amount,
                 userid,
