@@ -10,8 +10,7 @@ import sqlite3
 app = Flask(__name__)
 client = OpenAI()
 
-# stub
-current_user_id=1
+
 
 @app.route("/upload", methods=["POST"])
 def upload_base64_image():
@@ -93,6 +92,10 @@ def upload_base64_image():
 
     except Exception as e:
         return jsonify({"error": f"Failed to process image: {str(e)}"}), 500
+
+# stub
+current_user_id=1
+
 
 
 def insert_data(receipt, current_user):

@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS items;
 
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT, -- Use AUTOINCREMENT for SQLite
-    google_id TEXT UNIQUE NOT NULL
+    gmail TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE items (
@@ -17,7 +17,7 @@ CREATE TABLE items (
 );
 
 -- Stub insert statements:
-INSERT INTO users (google_id) VALUES ("12345678");
+INSERT INTO users (gmail) VALUES ("axuotaku@gmail.com");
 
 INSERT INTO items (user_id, name, expiry_date, quantity, weight) 
 VALUES (1, 'Zucchini Green', '2023-11-08', 5, NULL);
