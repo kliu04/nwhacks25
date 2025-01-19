@@ -8,6 +8,18 @@ import recipesIcon from "../assets/images/tild6263-3062-4666-b831-353366356234__
 function Home() {
     return (
         <div className="home">
+            {/* Header Section with Sign In */}
+            <header className="header">
+                <div className="header__logo">
+                    <h1>Pantry Pal</h1>
+                </div>
+                <div className="header__sign-in">
+                <Link to="/inventory" className="nav-link">
+                        Sign In
+                    </Link>
+                </div>
+            </header>
+
             {/* Hero Section */}
             <section className="hero">
                 <h1>Stop throwing away food. Save money. Discover new recipes</h1>
