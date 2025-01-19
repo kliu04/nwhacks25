@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
-import "./Recipes.css"; // Import the updated CSS
 import axios from "axios";
+import "./Recipes.css"; // Import the updated CSS
 
 interface Recipe {
     name: string;
     ingredients: string[];
     steps: string[];
     requiresExtra: boolean;
-    // New macro fields (strings):
-    calories: string;
-    protein: string;
-    carbs: string;
-    fats: string;
+    // Updated macro fields as numbers (floats)
+    calories: number;
+    protein: number;
+    carbs: number;
+    fats: number;
 }
 
 const UserRecipesPage: React.FC = () => {
@@ -51,7 +51,18 @@ const UserRecipesPage: React.FC = () => {
                 }
 
                 if (data && data.recipes && Array.isArray(data.recipes)) {
-                    setRecipes(data.recipes);
+                    // Optional: Validate and ensure macros are numbers
+                    const validatedRecipes: Recipe[] = data.recipes.map((recipe: any) => ({
+                        name: recipe.name,
+                        ingredients: recipe.ingredients,
+                        steps: recipe.steps,
+                        requiresExtra: recipe.requiresExtra,
+                        calories: typeof recipe.calories === "number" ? recipe.calories : parseFloat(recipe.calories),
+                        protein: typeof recipe.protein === "number" ? recipe.protein : parseFloat(recipe.protein),
+                        carbs: typeof recipe.carbs === "number" ? recipe.carbs : parseFloat(recipe.carbs),
+                        fats: typeof recipe.fats === "number" ? recipe.fats : parseFloat(recipe.fats),
+                    }));
+                    setRecipes(validatedRecipes);
                 } else {
                     console.error("Unexpected API response structure:", data);
                     setRecipes([]);
@@ -88,7 +99,7 @@ const UserRecipesPage: React.FC = () => {
         try {
             const response = await axios.post(
                 "https://nwhacks25.onrender.com/subtract",
-                null,
+                null, // No request body
                 {
                     params: {
                         user_ID: userID,
@@ -117,7 +128,7 @@ const UserRecipesPage: React.FC = () => {
         <div className="user-recipes">
             <h1 className="user-recipes__title">Your Recipes</h1>
 
-            {/* Display any success or error message from "Make" action */}
+            {/* Display any success/error message from "Make" action */}
             {makeMessage && <p className="make-message">{makeMessage}</p>}
 
             <ul className="user-recipes__list">
@@ -150,10 +161,10 @@ const UserRecipesPage: React.FC = () => {
                                     {/* Display macros */}
                                     <h3>Macros:</h3>
                                     <ul>
-                                        <li>Calories: {recipe.calories}</li>
-                                        <li>Protein: {recipe.protein}</li>
-                                        <li>Carbs: {recipe.carbs}</li>
-                                        <li>Fats: {recipe.fats}</li>
+                                        <li>Calories: {recipe.calories.toFixed(2)} kcal</li>
+                                        <li>Protein: {recipe.protein.toFixed(2)} g</li>
+                                        <li>Carbs: {recipe.carbs.toFixed(2)} g</li>
+                                        <li>Fats: {recipe.fats.toFixed(2)} g</li>
                                     </ul>
 
                                     <button
