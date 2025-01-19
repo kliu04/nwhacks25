@@ -2,6 +2,7 @@ import './App.css'
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
+
 // If your file exports `ViewInventory`, consider using the same name here:
 import ViewInventory from './Pages/Inventory.tsx';
 
