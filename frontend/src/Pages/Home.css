@@ -6,6 +6,29 @@
     margin: 2rem 0;
 }
 
+.home {
+    display: flex;
+    flex-direction: column; /* Stack header, hero, and other sections vertically */
+    min-height: 100vh; /* Make it fill the entire screen height */
+    width: 100%; /* Ensure it spans the full width */
+    font-family: Arial, sans-serif;
+  }
+
+.home-images {
+    display: flex;
+    flex-direction: column; /* Stack images vertically */
+    align-items: center; /* Center images horizontally */
+    width: 100%; /* Take full width */
+    margin-top: 2rem; /* Add some spacing above the section */
+}
+  
+.home-image {
+    width: 90%; /* Make images take up most of the page's width */
+    max-width: 1200px; /* Constrain maximum width */
+    height: auto; /* Maintain aspect ratio */
+    margin: 0; /* Remove any default spacing between images */
+}
+
 .nav-link {
     color: white;
     background-color: #4caf50; /* Green background */

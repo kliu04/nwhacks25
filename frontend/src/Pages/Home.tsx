@@ -4,6 +4,9 @@ import "./Home.css"; // Import the updated CSS
 import closeupImage from "../assets/images/close-up-hand-written.jpg";
 import uploadImage from "../assets/images/tild3665-3064-4562-b238-353665643236__-__resize__504x__cropped-image-man-ho.jpg";
 import recipesIcon from "../assets/images/tild6263-3062-4666-b831-353366356234__food-ingredients-mak.jpg";
+import homepage1 from "../assets/images/HomePage1.png";
+import homepage2 from "../assets/images/HomePage2.png";
+import homepage3 from "../assets/images/HomePage3.png";
 
 function Home() {
     return (
@@ -45,6 +48,12 @@ function Home() {
             </section>
             
             {/* Features Section */}
+        
+            <section className="home-images">
+                <img src={homepage1} alt="Homepage 1" className="home-image" />
+                <img src={homepage2} alt="Homepage 2" className="home-image" />
+                <img src={homepage3} alt="Homepage 3" className="home-image" />
+            </section>
             <section className="features">
                 <div className="feature">
                     <img src={uploadImage} alt="Upload Icon" className="feature__image" />
