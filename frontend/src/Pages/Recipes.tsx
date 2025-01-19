@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Recipes.css"; // Import the updated CSS
+import axios from "axios";
 
 interface Recipe {
     name: string;
