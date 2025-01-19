@@ -131,11 +131,11 @@ const UploadReceipt: React.FC = () => {
                 </div>
             )}
 
-            <div className=".upload-receipt__submit-button">
+            <div className="upload-receipt__buttons">
                 {/* Clear (doesn't post; removes image) */}
                 <button
                     onClick={handleClear}
-                    className="upload-receipt__clear-button"
+                    className="upload-receipt__button"
                     disabled={isUploading || !base64String}
                 >
                     Clear
@@ -144,7 +144,7 @@ const UploadReceipt: React.FC = () => {
                 {/* Upload (posts to backend) */}
                 <button
                     onClick={handleUpload}
-                    className="upload-receipt__upload-button"
+                    className="upload-receipt__button"
                     disabled={isUploading || !base64String}
                 >
                     {isUploading ? "Uploading..." : "Upload"}
@@ -153,12 +153,12 @@ const UploadReceipt: React.FC = () => {
                 {/* Next (always navigates to home) */}
                 <button
                     onClick={handleNext}
-                    className="upload-receipt__next-button"
+                    className="upload-receipt__button"
                 >
                     Next
                 </button>
+                </div>
             </div>
-        </div>
     );
 };
 // test

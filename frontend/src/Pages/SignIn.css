@@ -4,6 +4,13 @@
     font-family: Arial, sans-serif;
 }
 
+body {
+    background: linear-gradient(to bottom right, #f7fafc, #e2e8f0); /* Subtle gradient */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
 .sign-in__title {
     font-size: 2rem;
     margin-bottom: 2rem;
@@ -32,3 +39,50 @@
 .sign-in__continue-link:hover {
     background-color: #25913e;
 }
+
+/* Flex container for the buttons */
+.sign-in__buttons {
+    display: flex;
+    flex-direction: row; /* Stack buttons vertically */
+    align-items: center; /* Center buttons horizontally */
+    gap: 1rem; /* Add vertical space between buttons */
+    margin-top: 1rem; /* Add space above the container */
+}
+  
+  /* Style for the Google Sign-In button wrapper */
+  .sign-in__google {
+    margin-bottom: 1rem; /* Adds spacing below the Google button */
+    width: 100%; /* Prevent excessive width */
+    min-width: 200px; /* Ensure a reasonable minimum width */
+    display: flex;
+    justify-content: center;
+}
+  
+  /* Shared button styling */
+  .sign-in__button {
+    padding: 1rem 2rem; /* Adjust padding for uniform size */
+    background-color: #30ac4d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.3s, transform 0.2s;
+    flex: 1; /* Ensures equal width for all buttons */
+    max-width: 200px; /* Restrict max width for consistency */
+  }
+  
+.sign-in__button:hover {
+    background-color: #25913e; /* Darker green on hover */
+    transform: translateY(-2px); /* Subtle lift effect */
+}
+  
+.sign-in {
+    text-align: center;
+    padding: 2rem;
+    margin: 0 auto; /* Center the sign-in container */
+    max-width: 400px; /* Constrain the overall width */
+  }
+  

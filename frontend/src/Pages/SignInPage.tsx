@@ -85,18 +85,26 @@ const SignIn: React.FC = () => {
     };
 
     return (
-        <GoogleOAuthProvider clientId={clientId}>
-            <div className="sign-in">
-                <h1 className="sign-in__title">Sign In</h1>
-                <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
-                <button className="sign-in__logout-button" onClick={handleLogout}>
-                    Logout
-                </button>
-                <Link to="/" className="sign-in__continue-link">
-                    Continue
-                </Link>
-            </div>
-        </GoogleOAuthProvider>
+      <GoogleOAuthProvider clientId={clientId}>
+  <div className="sign-in">
+    <h1 className="sign-in__title">Sign In</h1>
+
+    {/* Google Sign-In Button */}
+    <div className="sign-in__google">
+      <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
+    </div>
+
+    {/* Green Buttons (Logout and Continue) */}
+    <div className="sign-in__buttons">
+      <button className="sign-in__button" onClick={handleLogout}>
+        Logout
+      </button>
+      <Link to="/" className="sign-in__button">
+        Continue
+      </Link>
+    </div>
+  </div>
+</GoogleOAuthProvider>
     );
 };
 

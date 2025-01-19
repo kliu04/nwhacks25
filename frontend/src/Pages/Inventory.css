@@ -6,6 +6,42 @@
     font-weight: bold;
     color: #555;
   }
+
+  /* Update Title Styling */
+.view-inventory__title {
+    text-align: center;
+    font-size: 2.5rem; /* Increased for visual hierarchy */
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    color: #2e7d32; /* Dark green for emphasis */
+}
+
+/* Highlight Expiry Dates */
+.view-inventory__cell.expired {
+    color: #d32f2f; /* Red for soon-to-expire items */
+    font-weight: bold;
+}
+
+.view-inventory__cell.expiry-soon {
+    color: #f9a825; /* Yellow for items expiring in a week */
+}
+
+.view-inventory__cell.expiry-week {
+    color: #2e7d32; /* Yellow for items expiring in a week */
+}
+
+/* Icon Alignment */
+.view-inventory__cell.item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.view-inventory__icon {
+    width: 20px;
+    height: 20px;
+}
+
   
   /* Main Container Styling */
   .view-inventory {

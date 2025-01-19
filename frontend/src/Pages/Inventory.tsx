@@ -9,6 +9,16 @@ interface InventoryItem {
   amountNumeric: number;  // Numerical value for sorting
 }
 
+const getExpiryClass = (expiry: string) => {
+  const expiryDate = new Date(expiry).getTime();
+  const now = Date.now();
+  const oneWeek = 7 * 24 * 60 * 60 * 1000;
+
+  if (expiryDate - now <= 0) return "expired";
+  if (expiryDate - now <= oneWeek) return "expiry-soon";
+  return "expiry-week";
+};
+
 type InventoryTuple = [string, string, number | null, number | null];
 
 const ViewInventory: React.FC = () => {
@@ -213,9 +223,9 @@ const ViewInventory: React.FC = () => {
                 <table className="view-inventory__table">
                     <thead>
                     <tr className="view-inventory__header-row">
-                        <th className="view-inventory__header-cell">Item</th>
-                        <th className="view-inventory__header-cell">Amount</th>
-                        <th className="view-inventory__header-cell">Expiry</th>
+                        <th className="view-inventory__header-cell"> Item Name</th>
+                        <th className="view-inventory__header-cell">Quantity</th>
+                        <th className="view-inventory__header-cell">Best Before Data</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -223,7 +233,10 @@ const ViewInventory: React.FC = () => {
                         <tr key={index} className="view-inventory__row">
                             <td className="view-inventory__cell">{invItem.item}</td>
                             <td className="view-inventory__cell">{invItem.amount}</td>
-                            <td className="view-inventory__cell">{invItem.expiry}</td>
+                            {/* <td className="view-inventory__cell${getExpiryClass(
+                                invItem.expiry )}">{invItem.expiry}</td> */}
+                                <td className={"view-inventory__cell " + getExpiryClass(invItem.expiry)}>{invItem.expiry}</td>
+                                              
                         </tr>
                     ))}
                     </tbody>
