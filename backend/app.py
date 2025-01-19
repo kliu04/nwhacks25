@@ -290,7 +290,7 @@ def generate_recipes():
                     ingredients that are not in the list as possible. Use exactly the wording we have in the array, 
                     and do not use more than what is given (either weight which is the last index or quantity which is the
                     3rd index). Input the exact number of ingredients used or weight if applicable in kg. Also you must generate the 
-                    calories, protein, carbs, and fat of the recipe based off the ingredients.""",
+                    calories, protein, carbs, and fat of the recipe based off the ingredients, and the amount used. Sum all the calories of the amounts of all ingredients used.""",
             },
         ],
         response_format={
