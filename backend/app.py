@@ -148,6 +148,7 @@ def clear_user_data(user_ID):
     query = """DELETE FROM items WHERE user_ID = ?"""
     cursor.execute(query, (user_ID,))
 
+    connection.commit()
     cursor.close()
     connection.close()
 
