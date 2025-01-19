@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import FormData from "form-data";
+import "./UploadReceipt.css"; // Import the updated CSS
 
 const UploadReceipt: React.FC = () => {
     const [base64String, setBase64String] = useState<string | null>(null);

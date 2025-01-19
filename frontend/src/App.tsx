@@ -3,7 +3,6 @@ import './App.css'
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './Pages/Home.tsx';
-import About from './Pages/Welcome.tsx';
 import Inventory from './Pages/Inventory.tsx';
 import GetStarted from './Pages/GetStarted.tsx';
 import UploadReceipt from './Pages/UploadReceipt.tsx';
@@ -18,7 +17,6 @@ const App: React.FC = () => {
         <Router>
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/welcome" element={<About />} />
                 <Route path="/inventory" element={<Inventory />} />
                 <Route path = "/getstarted" element={<GetStarted />} />
                 <Route path = "/upload-receipt" element={<UploadReceipt />} />

@@ -3,6 +3,7 @@ import { GoogleOAuthProvider, GoogleLogin, googleLogout, CredentialResponse } fr
 import { jwtDecode } from "jwt-decode";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import "./SignIn.css"; // Import the updated CSS
 
 interface DecodedToken {
     name: string;
