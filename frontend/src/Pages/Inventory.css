@@ -1,11 +1,61 @@
 /* General Loading State */
+
+
 .loading {
     text-align: center;
     margin-top: 2rem;
     font-size: 1.5rem;
     font-weight: bold;
     color: #555;
-  }
+}
+
+/* Dropdown Container */
+.view-inventory__controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 0.5rem; /* Added spacing between label and dropdown */
+}
+
+/* Dropdown Label */
+.view-inventory__label {
+    font-weight: bold;
+    color: #2e7d32; /* Consistent with the dark green theme */
+    font-size: 1rem;
+}
+
+/* Dropdown Element */
+.view-inventory__dropdown {
+    padding: 0.5rem;
+    border: 1px solid #2e7d32; /* Green border for emphasis */
+    border-radius: 8px; /* Rounded corners for a softer look */
+    font-size: 1rem;
+    color: #333; /* Dark text for better readability */
+    background-color: #f9f9f9; /* Subtle background color */
+    outline: none;
+    transition: all 0.3s ease; /* Smooth transition for hover effects */
+    cursor: pointer;
+}
+
+/* Dropdown Hover Effect */
+.view-inventory__dropdown:hover {
+    background-color: #e8f5e9; /* Slightly lighter green background on hover */
+    border-color: #1b5e20; /* Darker green border on hover */
+}
+
+/* Dropdown Focus Effect */
+.view-inventory__dropdown:focus {
+    box-shadow: 0 0 4px #4caf50; /* Green glow for focus */
+    border-color: #4caf50;
+}
+
+/* Dropdown Options */
+.view-inventory__dropdown option {
+    padding: 0.5rem;
+    font-size: 1rem;
+}
+
 
   /* Update Title Styling */
 .view-inventory__title {
