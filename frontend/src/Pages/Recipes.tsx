@@ -62,7 +62,7 @@ const UserRecipesPage: React.FC = () => {
                         carbs: typeof recipe.carbs === "number" ? recipe.carbs : parseFloat(recipe.carbs),
                         fats: typeof recipe.fats === "number" ? recipe.fats : parseFloat(recipe.fats),
                     }));
-                    console.log(data.recipes.protein);
+                    console.log(data.recipes);
                     setRecipes(validatedRecipes);
                 } else {
                     console.error("Unexpected API response structure:", data);
