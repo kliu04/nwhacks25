@@ -18,17 +18,17 @@ def get_inventory():
         try:
             current_user = request.args.get("user_ID")
             items = get_all_items(current_user)
-            return jsonify(items), 200
+            return (jsonify(items), 200)
         except Exception as e:
-            return ({"error": "Cannot get inventory"}), 400
+            return (jsonify({"error": "Cannot get inventory"}), 400)
     # POST
     try:
         current_user = request.args.get("user_ID")
         items = request.args.get("items")
         insert_data(items, current_user)
-        return ({"message": "Items set successfully"}), 200
+        return (jsonify({"message": "Items set successfully"}), 200)
     except Exception as e:
-        return ({"error:" "Cannot set inventory"}), 400
+        return (jsonify({"error:" "Cannot set inventory"}), 400)
 
 
 @app.route("/receipt", methods=["POST"])
@@ -36,7 +36,7 @@ def upload_receipt():
     data = request.form.get("image")
 
     if not data or "image" not in data:
-        return jsonify({"error": "No image data found"}), 400
+        return (jsonify({"error": "No image data found"}), 400)
 
     try:
         response = client.chat.completions.create(
@@ -112,7 +112,7 @@ def upload_receipt():
         )
 
     except Exception as e:
-        return jsonify({"error": f"Failed to process image: {str(e)}"}), 500
+        return (jsonify({"error": f"Failed to process image: {str(e)}"}), 500)
 
 
 def insert_data(receipt, current_user):
@@ -270,8 +270,8 @@ if __name__ == "__main__":
     app.run(debug=True, port=5000)
 
 
-@app.route("/login", methods=["POST"])
-def register_login_user():
+@app.route("/register", methods=["POST"])
+def register__user():
     user_ID = request.args.get("user_ID")
     # Connect to SQLite database (or create if it doesn't exist)
     conn = sqlite3.connect("database.db")
@@ -282,12 +282,20 @@ def register_login_user():
     existing_user = cursor.fetchone()
 
     if existing_user:
-        print(f"User with id {user_ID} already exists.")
+        return (
+            jsonify({"error": f"User {user_ID} already exists."}),
+            400,
+        )
+
     else:
         # Insert the new user into the database
         cursor.execute("INSERT INTO users (user_id) VALUES (?)", (user_ID,))
         conn.commit()
         print(f"User with id {user_ID} has been successfully registered.")
+        return (
+            jsonify({"message": f"User {user_ID} has been successfully registered."}),
+            200,
+        )
 
     # Close the connection
     conn.close()
