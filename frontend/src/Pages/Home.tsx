@@ -9,19 +9,6 @@ import homepage1 from "../assets/images/HomePage1.png";
 import homepage2 from "../assets/images/HomePage2.png";
 import homepage3 from "../assets/images/HomePage3.png";
 
-function FAQItem({ question, answer }: { question: string; answer: string }) {
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-        <div className="faq-item">
-            <h3 onClick={() => setIsOpen(!isOpen)} style={{ cursor: "pointer" }}>
-                {question} {isOpen ? "−" : "+"}
-            </h3>
-            {isOpen && <p>{answer}</p>}
-        </div>
-    );
-}
-
 function Home() {
     return (
         <div className="home">
@@ -86,25 +73,7 @@ function Home() {
                 </div>
             </section>
             {/* FAQ Section */}
-            <section className="faq">
-                <h2>FAQ</h2>
-                <FAQItem
-                    question="How do I add my receipts?"
-                    answer="You can upload photos of your receipts directly from your phone or computer. Our app uses OCR technology to extract the necessary information."
-                />
-                <FAQItem
-                    question="What types of food can I track?"
-                    answer="You can track any food items you purchase, from fresh produce to packaged goods. The app automatically recognizes common food items and their expiry dates."
-                />
-                <FAQItem
-                    question="How does the app suggest recipes?"
-                    answer="The app analyzes your current inventory and suggests recipes based on the ingredients you have available."
-                />
-                <FAQItem
-                    question="What happens if I don't have an internet connection?"
-                    answer="You can still use the app to manage your pantry and view your inventory, even without an internet connection."
-                />
-            </section>
+            
         </div>
     );
 }
