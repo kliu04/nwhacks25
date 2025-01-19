@@ -100,10 +100,6 @@ function Home() {
                     question="How does the app suggest recipes?"
                     answer="The app analyzes your current inventory and suggests recipes based on the ingredients you have available."
                 />
-                <FAQItem
-                    question="What happens if I don't have an internet connection?"
-                    answer="You can still use the app to manage your pantry and view your inventory, even without an internet connection."
-                />
             </section>
         </div>
     );
