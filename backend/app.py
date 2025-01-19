@@ -89,7 +89,7 @@ def upload_receipt():
                         Strip out all new lines and spaces. Ignore any extra information in the receipt such as prices.
                         The current date is: {datetime.today().strftime('%Y-%m-%d')}.
                         Please spell check and expand abbreviations, for example klggs cere is kellogs cereal. Receipts will shorten
-                        names so please expand them. Ignore non-food items.
+                        names so please expand them. Ignore non-food items. Please also include the calories (integer), protein (integer), carbs (integer), fat (integer). Use your best guess.
                         """,
                         },
                         {"type": "image_url", "image_url": {"url": data}},
@@ -120,8 +120,32 @@ def upload_receipt():
                                             "type": "string",
                                             "description": "The expiry date of the item in YYYYMMDD format.",
                                         },
+                                        "calories": {
+                                            "type": "number",
+                                            "description": "the calories (kcal) in the food (total)",
+                                        },
+                                        "protein": {
+                                            "type": "number",
+                                            "description": "the protein in the food (grams)",
+                                        },
+                                        "carbs": {
+                                            "type": "number",
+                                            "description": "the carbs in the food (grams)",
+                                        },
+                                        "fat": {
+                                            "type": "number",
+                                            "description": "the fat in the food (grams)",
+                                        },
                                     },
-                                    "required": ["name", "amount", "expiry-date"],
+                                    "required": [
+                                        "name",
+                                        "amount",
+                                        "expiry-date",
+                                        "calories",
+                                        "protein",
+                                        "carbs",
+                                        "fat",
+                                    ],
                                     "additionalProperties": False,
                                 },
                             },
@@ -175,6 +199,10 @@ def insert_data(receipt, user_ID):
             expiry_date = datetime.strptime(expiry_date_str, "%Y-%m-%d").date()
         quantity = None
         weight = None
+        calories = item["calories"]
+        protein = item["protein"]
+        carbs = item["carbs"]
+        fat = item["fat"]
 
         # Check if amount contains "kg"
         if "kg" in str(item["amount"]):  # Assuming 'amount' is a string in the item
@@ -184,10 +212,20 @@ def insert_data(receipt, user_ID):
 
         # Insert query
         insert_query = """
-        INSERT INTO items (user_id, name, expiry_date, quantity, weight)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO items (user_id, name, expiry_date, quantity, weight, calories, protein, carbs, fat)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
-        data = (user_id, item_name, expiry_date, quantity, weight)
+        data = (
+            user_id,
+            item_name,
+            expiry_date,
+            quantity,
+            weight,
+            calories,
+            protein,
+            carbs,
+            fat,
+        )
 
         # Execute query and commit
         cursor.execute(insert_query, data)
@@ -207,7 +245,7 @@ def get_all_items(user_ID):
 
     # Corrected SQL Query
     select_query = """
-        SELECT name, expiry_date, quantity, weight 
+        SELECT name, expiry_date, quantity, weight, calories, protein, carbs, fat
         FROM items 
         WHERE user_id = ?
     """

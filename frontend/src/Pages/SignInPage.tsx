@@ -1,7 +1,8 @@
 import React from "react";
 import { GoogleOAuthProvider, GoogleLogin, googleLogout, CredentialResponse } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
 import axios, { AxiosError } from "axios";
 import "./SignIn.css"; // Import the updated CSS
 
@@ -84,6 +85,12 @@ const SignIn: React.FC = () => {
         alert("You have logged out.");
     };
 
+    const navigate = useNavigate();
+
+    const handleNavigateHome = () => {
+      navigate("/"); // Navigate to home page
+    };
+
     return (
       <GoogleOAuthProvider clientId={clientId}>
   <div className="sign-in">
@@ -99,9 +106,9 @@ const SignIn: React.FC = () => {
       <button className="sign-in__button" onClick={handleLogout}>
         Logout
       </button>
-      <Link to="/" className="sign-in__button">
+      <button  className="sign-in__button" onClick={handleNavigateHome}>
         Continue
-      </Link>
+      </button>
     </div>
   </div>
 </GoogleOAuthProvider>
